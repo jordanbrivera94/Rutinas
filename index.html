@@ -264,13 +264,13 @@ function seed(){
       return {exId:id(n,e),sets:Array.from({length:s},(_,j)=>({w,r:j===s-1?Math.max(r-1,1):r,t:'n',done:true}))}});
     history.push({id:uid(),name:templates[ti].name,tplId:templates[ti].id,start,end:start+(50+k*2)*60000,example:true,exercises:exs});
   });
-  return {v:1,exercises,templates,history,active:null,rest:null,settings:{unit:'kg',rest:90,autoRest:true}};
+  return {v:1,exercises,templates,history,active:null,rest:null,settings:{unit:'kg',rest:90,autoRest:true,keepAwake:true}};
 }
 function load(){try{const t=localStorage.getItem(KEY);if(t){const d=JSON.parse(t);if(d&&Array.isArray(d.exercises))return d}}catch(e){}return null}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 
 let S=load()||seed();
-S.settings=Object.assign({unit:'kg',rest:90,autoRest:true},S.settings||{});
+S.settings=Object.assign({unit:'kg',rest:90,autoRest:true,keepAwake:true},S.settings||{});
 const ui={tab:S.active?'train':'history',sheet:null,confirm:null,q:'',m:'Todos',pq:'',picked:[],draft:null};
 const U=()=>S.settings.unit;
 const exById=id=>S.exercises.find(e=>e.id===id)||{id,name:'Ejercicio eliminado',equip:'',muscle:''};
@@ -351,6 +351,7 @@ profile(){
     <div class="card stack"><h3>Entrenos por semana</h3>${barChart(weeks)}</div>
     <div class="card stack"><h3>Ajustes</h3>
       <div class="label">Unidad de peso</div><div class="seg">${['kg','lb'].map(u=>`<button class="chip${U()===u?' on':''}" data-act="unit" data-u="${u}">${u}</button>`).join('')}</div>
+      <div class="label">Pantalla encendida durante el entreno</div><div class="seg">${[['1','Activada'],['0','Desactivada']].map(([v,t])=>`<button class="chip${(S.settings.keepAwake!==false)===(v==='1')?' on':''}" data-act="keepAwake" data-v="${v}">${t}</button>`).join('')}</div>
       <div class="label">Iniciar descanso al marcar una serie</div><div class="seg">${[['1','Automático'],['0','Solo manual']].map(([v,t])=>`<button class="chip${(S.settings.autoRest!==false)===(v==='1')?' on':''}" data-act="autoRest" data-v="${v}">${t}</button>`).join('')}</div>
       <div class="label">Descanso por defecto</div><div class="seg">${restOpts.map(s=>`<button class="chip${S.settings.rest===s?' on':''}" data-act="defRest" data-s="${s}">${fmtClock(s*1000)}</button>`).join('')}</div>
     </div>
@@ -581,8 +582,8 @@ function beepTick(){try{if(!actx)return;if(actx.state!=='running')actx.resume();
 function beep(){try{if(!actx)return;if(actx.state!=='running')actx.resume();[[988,0],[988,0.28],[1319,0.56]].forEach(([f,d])=>tone(f,d,0.22,0.7));tone(1319,0.84,0.7,0.7)}catch(e){}}
 function flash(){const f=document.createElement('div');f.className='flash';f.innerHTML='<span>¡A la siguiente serie!</span>';document.body.appendChild(f);setTimeout(()=>f.remove(),2600);f.addEventListener('click',()=>f.remove())}
 let wake=null;
-function requestWake(){}
-function releaseWake(){}
+async function requestWake(){try{if(S.active&&S.settings.keepAwake!==false&&navigator.wakeLock&&!wake){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>wake=null)}}catch(e){wake=null}}
+function releaseWake(){try{wake&&wake.release()}catch(e){}wake=null}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){requestWake();render()}});
 
 /* ---------- Acciones ---------- */
@@ -600,7 +601,7 @@ function addExercises(ids){
 function tplFromSession(s){const t={id:uid(),name:s.name,items:s.exercises.map(ex=>({exId:ex.exId,sets:ex.sets.length}))};S.templates.push(t);save();return t}
 function doImport(text){
   try{const d=JSON.parse(text);if(!d||!Array.isArray(d.exercises)||!Array.isArray(d.history)||!Array.isArray(d.templates))throw 0;
-    S=Object.assign({v:1,active:null,rest:null},d);S.settings=Object.assign({unit:'kg',rest:90,autoRest:true},d.settings||{});S.history.sort((a,b)=>a.start-b.start);
+    S=Object.assign({v:1,active:null,rest:null},d);S.settings=Object.assign({unit:'kg',rest:90,autoRest:true,keepAwake:true},d.settings||{});S.history.sort((a,b)=>a.start-b.start);
     save();ui.sheet=null;ui.tab='history';render();toast('Copia importada')}
   catch(e){toast('Ese texto no es una copia válida de Rutinas Gym')}
 }
@@ -665,6 +666,7 @@ const A={
   timerAdj(b){ui.timerSel=Math.max(15,Math.min(900,ui.timerSel+(+b.dataset.d)));renderSheet()},
   timerStart(){const s=ui.timerSel;ui.sheet=null;ui.confirm=null;renderSheet();startRest(s)},
   autoRest(b){S.settings.autoRest=b.dataset.v==='1';save();if(ui.sheet){renderSheet();return}render();toast(S.settings.autoRest?'El descanso empezará solo al marcar cada serie':'El descanso solo empieza cuando lo inicies tú')},
+  keepAwake(b){S.settings.keepAwake=b.dataset.v==='1';save();if(S.settings.keepAwake)requestWake();else releaseWake();render();toast(S.settings.keepAwake?'La pantalla no se apagará mientras entrenas':'La pantalla se apagará con el tiempo normal del iPhone')},
   restMinus(){if(S.rest){S.rest.end-=15000;save();renderRest()}},
   restPlus(){if(S.rest){S.rest.end+=15000;S.rest.total+=15000;save();renderRest()}},
   restSkip(){S.rest=null;save();renderRest()},
