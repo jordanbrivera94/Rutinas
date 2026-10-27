@@ -165,6 +165,9 @@ h3{font-size:1.05rem;font-weight:700;margin:0}
 .tbtn{border:0;width:60px;height:48px;border-radius:12px;background:var(--surface2);font-weight:700;font-size:1.05rem}
 .timer-btn{width:44px;height:44px;color:var(--accent);background:var(--accent-soft)}
 .timer-btn svg{width:24px;height:24px}
+.flash{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-family:var(--f-display);font-weight:700;font-size:2.4rem;text-transform:uppercase;text-align:center;padding:24px;opacity:0;animation:flash 2.6s ease-out forwards}
+@keyframes flash{0%{opacity:0}6%{opacity:.95}20%{opacity:.25}32%{opacity:.95}46%{opacity:.25}58%{opacity:.95}85%{opacity:.95}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.flash{animation:fade 2.6s linear forwards}@keyframes fade{0%,85%{opacity:.95}100%{opacity:0}}}
 .rest{background:var(--surface);border-top:1px solid var(--line);padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .rest-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:8px}
 .rest-time{font-family:var(--f-display);font-weight:700;font-size:1.6rem;font-variant-numeric:tabular-nums;min-width:62px}
@@ -573,10 +576,13 @@ let confT;function confirmTap(key){if(ui.confirm===key){ui.confirm=null;clearTim
 /* ---------- Audio, vibración, pantalla encendida ---------- */
 let actx=null;
 function ensureAudio(){try{if(!actx){const C=window.AudioContext||window.webkitAudioContext;if(C)actx=new C()}if(actx&&actx.state==='suspended')actx.resume()}catch(e){}}
-function beep(){try{if(!actx)return;[0,0.22,0.44].forEach((d,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=i===2?1175:880;g.gain.setValueAtTime(0.0001,actx.currentTime+d);g.gain.exponentialRampToValueAtTime(0.25,actx.currentTime+d+0.01);g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+d+0.18);o.connect(g);g.connect(actx.destination);o.start(actx.currentTime+d);o.stop(actx.currentTime+d+0.2)})}catch(e){}}
+function tone(f,t0,dur,vol){const o=actx.createOscillator(),g=actx.createGain();o.type='triangle';o.frequency.value=f;const t=actx.currentTime+t0;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.012);g.gain.setValueAtTime(vol,t+dur*0.6);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(actx.destination);o.start(t);o.stop(t+dur+0.02)}
+function beepTick(){try{if(!actx)return;if(actx.state!=='running')actx.resume();tone(784,0,0.14,0.5)}catch(e){}}
+function beep(){try{if(!actx)return;if(actx.state!=='running')actx.resume();[[988,0],[988,0.28],[1319,0.56]].forEach(([f,d])=>tone(f,d,0.22,0.7));tone(1319,0.84,0.7,0.7)}catch(e){}}
+function flash(){const f=document.createElement('div');f.className='flash';f.innerHTML='<span>¡A la siguiente serie!</span>';document.body.appendChild(f);setTimeout(()=>f.remove(),2600);f.addEventListener('click',()=>f.remove())}
 let wake=null;
-async function requestWake(){try{if(S.active&&navigator.wakeLock&&!wake){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>wake=null)}}catch(e){wake=null}}
-function releaseWake(){try{wake&&wake.release()}catch(e){}wake=null}
+function requestWake(){}
+function releaseWake(){}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){requestWake();render()}});
 
 /* ---------- Acciones ---------- */
@@ -697,9 +703,10 @@ document.addEventListener('change',ev=>{
 });
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&ui.sheet)closeSheet()});
 
+let lastTick=0;
 setInterval(()=>{
   if(S.active){const el=$('#elapsed');if(el)el.textContent=fmtClock(Date.now()-S.active.start)}
-  if(S.rest){if(Date.now()>=S.rest.end){S.rest=null;save();renderRest();beep();try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}toast('¡Descanso terminado!')}else renderRest()}
+  if(S.rest){const left=S.rest.end-Date.now();if(left<=0){S.rest=null;lastTick=0;save();renderRest();beep();flash();try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}}else{const sec=Math.ceil(left/1000);if(sec<=3&&sec!==lastTick&&left>200){lastTick=sec;beepTick()}else if(sec>3)lastTick=0;renderRest()}}
 },250);
 
 render();
