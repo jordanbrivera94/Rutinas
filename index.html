@@ -160,6 +160,11 @@ h3{font-size:1.05rem;font-weight:700;margin:0}
 .chart .val{fill:var(--fg);font-size:12px;font-weight:700;font-family:var(--f-body)}
 
 /* Descanso */
+.timer-pick{display:flex;align-items:center;justify-content:center;gap:18px;padding-block:6px}
+.tval{font-family:var(--f-display);font-weight:700;font-size:4rem;line-height:1;font-variant-numeric:tabular-nums;min-width:4ch;text-align:center}
+.tbtn{border:0;width:60px;height:48px;border-radius:12px;background:var(--surface2);font-weight:700;font-size:1.05rem}
+.timer-btn{width:44px;height:44px;color:var(--accent);background:var(--accent-soft)}
+.timer-btn svg{width:24px;height:24px}
 .rest{background:var(--surface);border-top:1px solid var(--line);padding-block:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .rest-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:8px}
 .rest-time{font-family:var(--f-display);font-weight:700;font-size:1.6rem;font-variant-numeric:tabular-nums;min-width:62px}
@@ -193,7 +198,7 @@ textarea{font-family:ui-monospace,Menlo,monospace;font-size:13px;min-height:120p
 .big-title{font-family:var(--f-display);font-weight:700;font-size:1.8rem;text-transform:uppercase;line-height:1.05;text-wrap:balance}
 
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:.92rem;max-width:calc(100% - 32px);text-align:center}
-@media (prefers-reduced-motion:no-preference){.sheet{animation:up .22s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}}
+@media (prefers-reduced-motion:no-preference){.sheet.anim{animation:up .22s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}}
 @media (max-width:360px){.set-row{grid-template-columns:32px minmax(0,1fr) 58px 48px 36px}.tiles .v{font-size:1.4rem}}
 </style>
 </head>
@@ -229,7 +234,7 @@ const LIB=[
 ['Hip thrust','Barra','Glúteo'],['Patada de glúteo','Polea','Glúteo'],
 ['Plancha','Peso corporal','Core'],['Crunch en polea','Polea','Core'],['Elevación de piernas colgado','Peso corporal','Core']
 ];
-const ICON={dots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>'};
+const ICON={timer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9.5 2.5h5"/></svg>',dots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>'};
 
 const uid=()=>Math.random().toString(36).slice(2,10);
 const $=s=>document.querySelector(s);
@@ -256,13 +261,13 @@ function seed(){
       return {exId:id(n,e),sets:Array.from({length:s},(_,j)=>({w,r:j===s-1?Math.max(r-1,1):r,t:'n',done:true}))}});
     history.push({id:uid(),name:templates[ti].name,tplId:templates[ti].id,start,end:start+(50+k*2)*60000,example:true,exercises:exs});
   });
-  return {v:1,exercises,templates,history,active:null,rest:null,settings:{unit:'kg',rest:90}};
+  return {v:1,exercises,templates,history,active:null,rest:null,settings:{unit:'kg',rest:90,autoRest:true}};
 }
 function load(){try{const t=localStorage.getItem(KEY);if(t){const d=JSON.parse(t);if(d&&Array.isArray(d.exercises))return d}}catch(e){}return null}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 
 let S=load()||seed();
-S.settings=Object.assign({unit:'kg',rest:90},S.settings||{});
+S.settings=Object.assign({unit:'kg',rest:90,autoRest:true},S.settings||{});
 const ui={tab:S.active?'train':'history',sheet:null,confirm:null,q:'',m:'Todos',pq:'',picked:[],draft:null};
 const U=()=>S.settings.unit;
 const exById=id=>S.exercises.find(e=>e.id===id)||{id,name:'Ejercicio eliminado',equip:'',muscle:''};
@@ -319,7 +324,7 @@ train(){
     return `<button class="card tpl" data-act="tpl" data-id="${t.id}"><span class="tpl-name">${esc(t.name)}</span><span class="tpl-list">${t.items.map(it=>esc(exById(it.exId).name)).join(', ')||'Sin ejercicios'}</span><span class="tpl-last">${last?'Última vez: '+ago(last.start):'Sin usar todavía'}</span></button>`;
   }).join('');
   return `<div class="wrap"><h1>Entrenar</h1>
-    <button class="btn primary block" data-act="startEmpty">Empezar entreno vacío</button>
+    <div class="row"><button class="btn primary grow" data-act="startEmpty">Empezar entreno vacío</button><button class="btn soft" data-act="timer" aria-label="Temporizador de descanso" style="display:flex;align-items:center;gap:6px"><span style="width:20px;height:20px;display:inline-flex">${ICON.timer}</span>Temporizador</button></div>
     <div class="sec-head"><h2>Mis plantillas</h2><button class="btn ghost" data-act="newTpl">+ Plantilla</button></div>
     ${tpls?`<div class="tpl-grid">${tpls}</div>`:'<div class="card muted">Crea una plantilla con tus ejercicios para empezar con un toque.</div>'}
   </div>`;
@@ -343,6 +348,7 @@ profile(){
     <div class="card stack"><h3>Entrenos por semana</h3>${barChart(weeks)}</div>
     <div class="card stack"><h3>Ajustes</h3>
       <div class="label">Unidad de peso</div><div class="seg">${['kg','lb'].map(u=>`<button class="chip${U()===u?' on':''}" data-act="unit" data-u="${u}">${u}</button>`).join('')}</div>
+      <div class="label">Iniciar descanso al marcar una serie</div><div class="seg">${[['1','Automático'],['0','Solo manual']].map(([v,t])=>`<button class="chip${(S.settings.autoRest!==false)===(v==='1')?' on':''}" data-act="autoRest" data-v="${v}">${t}</button>`).join('')}</div>
       <div class="label">Descanso por defecto</div><div class="seg">${restOpts.map(s=>`<button class="chip${S.settings.rest===s?' on':''}" data-act="defRest" data-s="${s}">${fmtClock(s*1000)}</button>`).join('')}</div>
     </div>
     <div class="card stack"><h3>Copia de seguridad</h3>
@@ -356,7 +362,7 @@ profile(){
 
 function viewWorkout(){
   const a=S.active;
-  let h=`<div class="wrap"><div class="wk-head"><div class="wk-meta"><input id="wk-name" class="wk-name" value="${esc(a.name)}" aria-label="Nombre del entreno"><span class="elapsed" id="elapsed">${fmtClock(Date.now()-a.start)}</span></div><button class="btn primary" data-act="finish">Terminar</button></div>`;
+  let h=`<div class="wrap"><div class="wk-head"><div class="wk-meta"><input id="wk-name" class="wk-name" value="${esc(a.name)}" aria-label="Nombre del entreno"><span class="elapsed" id="elapsed">${fmtClock(Date.now()-a.start)}</span></div><button class="icon-btn timer-btn" data-act="timer" aria-label="Temporizador de descanso">${ICON.timer}</button><button class="btn primary" data-act="finish">Terminar</button></div>`;
   if(!a.exercises.length)h+='<div class="card muted">Añade tu primer ejercicio para empezar a registrar series.</div>';
   a.exercises.forEach((ex,i)=>{
     const e=exById(ex.exId);const prev=lastSets(ex.exId)||[];let n=0;
@@ -514,6 +520,14 @@ summary(){
     ${prs.length?`<div class="stack"><h3 class="c-w">★ ${prs.length===1?'Nuevo récord':'Nuevos récords'}</h3>${prs.map(p=>`<div class="row"><span class="grow">${esc(exById(p.exId).name)}</span><span class="num-t">1RM est. ${fmtN(Math.round(p.v*10)/10)} ${U()}</span></div>`).join('')}</div>`:''}
     <div class="sheet-foot">${s.tplId&&S.templates.some(t=>t.id===s.tplId)?'':'<button class="btn soft" data-act="summaryTpl">Guardar como plantilla</button>'}<button class="btn primary" data-act="close">Listo</button></div>`;
 },
+timer(){
+  const v=ui.timerSel;const opts=[30,45,60,90,120,150,180,240,300];
+  return `<div class="big-title">Temporizador</div>
+    <div class="timer-pick"><button class="tbtn" data-act="timerAdj" data-d="-15" aria-label="Quitar 15 segundos">−15</button><span class="tval" id="timer-val">${fmtClock(v*1000)}</span><button class="tbtn" data-act="timerAdj" data-d="15" aria-label="Añadir 15 segundos">+15</button></div>
+    <div class="seg" style="justify-content:center">${opts.map(s=>`<button class="chip${v===s?' on':''}" data-act="timerSel" data-s="${s}">${fmtClock(s*1000)}</button>`).join('')}</div>
+    <div class="stack" style="gap:6px"><div class="label">Al marcar una serie</div><div class="seg">${[['1','Iniciar automático'],['0','Solo manual']].map(([k,t])=>`<button class="chip${(S.settings.autoRest!==false)===(k==='1')?' on':''}" data-act="autoRest" data-v="${k}">${t}</button>`).join('')}</div></div>
+    <div class="sheet-foot"><button class="btn" data-act="close">Cerrar</button><button class="btn primary" data-act="timerStart">${S.rest?'Reiniciar':'Iniciar'} ${fmtClock(v*1000)}</button></div>`;
+},
 export(){
   return `<div class="big-title">Exportar copia</div>
     <p class="muted" style="margin:0">Copia este texto y pégalo en una nota o un archivo. Para recuperarlo, usa Importar.</p>
@@ -540,8 +554,8 @@ function render(){
 function renderSheet(){
   const w=$('#sheetwrap');
   if(!ui.sheet){w.hidden=true;w.innerHTML='';return}
-  const old=w.querySelector('.sheet');const st=old&&old.dataset.type===ui.sheet.type?old.scrollTop:0;
-  w.innerHTML=`<div class="scrim" data-act="close"></div><div class="sheet" role="dialog" aria-modal="true" data-type="${ui.sheet.type}"><div class="grab"></div>${SHEETS[ui.sheet.type]()}</div>`;
+  const old=w.querySelector('.sheet');const same=old&&old.dataset.type===ui.sheet.type;const st=same?old.scrollTop:0;
+  w.innerHTML=`<div class="scrim" data-act="close"></div><div class="sheet${same?'':' anim'}" role="dialog" aria-modal="true" data-type="${ui.sheet.type}"><div class="grab"></div>${SHEETS[ui.sheet.type]()}</div>`;
   w.hidden=false;w.querySelector('.sheet').scrollTop=st;
 }
 function openSheet(s){ui.sheet=s;ui.confirm=null;renderSheet()}
@@ -580,7 +594,7 @@ function addExercises(ids){
 function tplFromSession(s){const t={id:uid(),name:s.name,items:s.exercises.map(ex=>({exId:ex.exId,sets:ex.sets.length}))};S.templates.push(t);save();return t}
 function doImport(text){
   try{const d=JSON.parse(text);if(!d||!Array.isArray(d.exercises)||!Array.isArray(d.history)||!Array.isArray(d.templates))throw 0;
-    S=Object.assign({v:1,active:null,rest:null},d);S.settings=Object.assign({unit:'kg',rest:90},d.settings||{});S.history.sort((a,b)=>a.start-b.start);
+    S=Object.assign({v:1,active:null,rest:null},d);S.settings=Object.assign({unit:'kg',rest:90,autoRest:true},d.settings||{});S.history.sort((a,b)=>a.start-b.start);
     save();ui.sheet=null;ui.tab='history';render();toast('Copia importada')}
   catch(e){toast('Ese texto no es una copia válida de Rutinas Gym')}
 }
@@ -622,7 +636,7 @@ const A={
     if(s.w===''&&p&&p.w>0)s.w=String(p.w);
     if(s.r===''&&p)s.r=String(p.r);
     if(num(s.r)===null){render();const r=$('#r-'+i+'-'+j);r&&r.focus();toast('Escribe las repeticiones');return}
-    s.done=true;save();render();startRest(ex.rest||S.settings.rest)},
+    s.done=true;save();render();if(S.settings.autoRest!==false)startRest(ex.rest||S.settings.rest)},
   addset(b){const ex=S.active.exercises[+b.dataset.i];ex.sets.push({w:'',r:'',t:'n',done:false});save();render()},
   addex(){ui.picked=[];ui.pq='';openSheet({type:'pick',target:'active'})},
   exmenu(b){openSheet({type:'exmenu',i:+b.dataset.i})},
@@ -640,6 +654,11 @@ const A={
     ui.tab='history';ui.sheet={type:'summary',id:sess.id,prs};render();$('#main').scrollTop=0},
   discard(){S.active=null;S.rest=null;save();releaseWake();closeSheet();toast('Entreno descartado')},
   cancelwk(){if(!confirmTap('cancel'))return;A.discard()},
+  timer(){ui.timerSel=S.rest?Math.round(S.rest.total/1000):S.settings.rest;openSheet({type:'timer'})},
+  timerSel(b){ui.timerSel=+b.dataset.s;renderSheet()},
+  timerAdj(b){ui.timerSel=Math.max(15,Math.min(900,ui.timerSel+(+b.dataset.d)));renderSheet()},
+  timerStart(){const s=ui.timerSel;ui.sheet=null;ui.confirm=null;renderSheet();startRest(s)},
+  autoRest(b){S.settings.autoRest=b.dataset.v==='1';save();if(ui.sheet){renderSheet();return}render();toast(S.settings.autoRest?'El descanso empezará solo al marcar cada serie':'El descanso solo empieza cuando lo inicies tú')},
   restMinus(){if(S.rest){S.rest.end-=15000;save();renderRest()}},
   restPlus(){if(S.rest){S.rest.end+=15000;S.rest.total+=15000;save();renderRest()}},
   restSkip(){S.rest=null;save();renderRest()},
