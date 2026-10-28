@@ -279,6 +279,7 @@ function addTpl(flag,name,need){
 }
 addTpl('addedDiaB','Día B',[['Prensa de pierna','Máquina','Pierna',4],['Peso muerto','Máquina Smith','Pierna',3],['Extensión de cuádriceps','Máquina','Pierna',4],['Jalón al pecho supino','Polea','Espalda',4],['Pull over','Polea','Espalda',4],['Curl martillo','Polea','Bíceps',4],['Curl predicador','Barra','Bíceps',4]]);
 addTpl('addedDiaC','Día C',[['Press de pecho iso-lateral','Máquina','Pecho',4],['Clip chest','Otro','Hombros',4],['Press de hombro','Máquina','Hombros',4],['Pájaros','Mancuernas','Hombros',4],['Extensión de tríceps barra recta','Polea','Tríceps',4]]);
+addTpl('addedDiaD','Día D',[['Peso muerto déficit','Barra','Pierna',3],['Sentadilla hack','Máquina','Pierna',3],['Remo en T','Barra','Espalda',4],['Remo en polea baja','Polea','Espalda',4],['Curl de bíceps','Barra','Bíceps',3],['Curl inclinado','Mancuernas','Bíceps',4]]);
 const ui={tab:S.active?'train':'history',sheet:null,confirm:null,q:'',m:'Todos',pq:'',picked:[],draft:null};
 const U=()=>S.settings.unit;
 const exById=id=>S.exercises.find(e=>e.id===id)||{id,name:'Ejercicio eliminado',equip:'',muscle:''};
