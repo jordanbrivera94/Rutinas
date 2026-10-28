@@ -225,7 +225,7 @@ textarea{font-family:ui-monospace,Menlo,monospace;font-size:13px;min-height:120p
 const KEY='rutinas-gym-v1';
 const DAY=864e5;
 const MUSCLES=['Pecho','Espalda','Hombros','Bíceps','Tríceps','Pierna','Glúteo','Core'];
-const EQUIP=['Barra','Mancuernas','Polea','Máquina','Peso corporal','Otro'];
+const EQUIP=['Barra','Mancuernas','Polea','Máquina','Máquina Smith','Peso corporal','Otro'];
 const LIB=[
 ['Press de banca','Barra','Pecho'],['Press de banca','Mancuernas','Pecho'],['Press inclinado','Mancuernas','Pecho'],['Press inclinado','Barra','Pecho'],
 ['Cruce de poleas','Polea','Pecho'],['Aperturas','Mancuernas','Pecho'],['Fondos','Peso corporal','Tríceps'],
@@ -271,6 +271,13 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 
 let S=load()||seed();
 S.settings=Object.assign({unit:'kg',rest:90,autoRest:true,keepAwake:true},S.settings||{});
+(function addDiaB(){
+  if(S.settings.addedDiaB)return;
+  const need=[['Prensa de pierna','Máquina','Pierna',4],['Peso muerto','Máquina Smith','Pierna',3],['Extensión de cuádriceps','Máquina','Pierna',4],['Jalón al pecho supino','Polea','Espalda',4],['Pull over','Polea','Espalda',4],['Curl martillo','Polea','Bíceps',4],['Curl predicador','Barra','Bíceps',4]];
+  const items=need.map(([n,e,m,s])=>{let x=S.exercises.find(q=>q.name===n&&q.equip===e);if(!x){x={id:uid(),name:n,equip:e,muscle:m};S.exercises.push(x)}return {exId:x.id,sets:s}});
+  S.templates.push({id:uid(),name:'Día B',items});
+  S.settings.addedDiaB=true;save();
+})();
 const ui={tab:S.active?'train':'history',sheet:null,confirm:null,q:'',m:'Todos',pq:'',picked:[],draft:null};
 const U=()=>S.settings.unit;
 const exById=id=>S.exercises.find(e=>e.id===id)||{id,name:'Ejercicio eliminado',equip:'',muscle:''};
