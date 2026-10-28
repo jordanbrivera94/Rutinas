@@ -403,10 +403,10 @@ function exListHTML(q,m,picked){
 
 /* ---------- Gráficas ---------- */
 function barChart(weeks){
-  const W=340,H=150,l=26,r=8,t=14,b=24;const max=Math.max(3,...weeks.map(w=>w.v));
+  const W=340,H=150,l=26,r=8,t=14,b=24;const top=Math.max(3,...weeks.map(w=>w.v));const step=top<=5?1:Math.ceil(top/4);const max=Math.ceil(top/step)*step;const ticks=[];for(let v=0;v<=max;v+=step)ticks.push(v);
   const bw=(W-l-r)/weeks.length;const y=v=>t+(H-t-b)*(1-v/max);
   let s=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Entrenos por semana, últimas 8 semanas">`;
-  [0,Math.round(max/2),max].forEach(v=>{s+=`<line class="grid" x1="${l}" x2="${W-r}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${l-6}" y="${y(v)+4}" text-anchor="end">${v}</text>`});
+  ticks.forEach(v=>{s+=`<line class="grid" x1="${l}" x2="${W-r}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${l-6}" y="${y(v)+4}" text-anchor="end">${v}</text>`});
   weeks.forEach((w,i)=>{const x=l+i*bw+bw*0.18,ww=bw*0.64;const h=Math.max(0,y(0)-y(w.v));
     s+=`<rect class="bar${w.cur?' cur':''}" x="${x}" y="${y(w.v)}" width="${ww}" height="${h}" rx="3"/>`;
     if(w.v)s+=`<text class="val" x="${x+ww/2}" y="${y(w.v)-4}" text-anchor="middle">${w.v}</text>`;
