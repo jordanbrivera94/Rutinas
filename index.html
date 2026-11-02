@@ -143,6 +143,9 @@ h3{font-size:1.05rem;font-weight:700;margin:0}
 .exitem.sel .badge{background:var(--accent);color:var(--accent-ink)}
 
 /* Perfil */
+.cx-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.cx-grid input[type=date]{padding:9px 8px;min-height:44px}
+@media (max-width:420px){.cx-grid{grid-template-columns:1fr 1fr}.cx-grid .field:last-child{grid-column:1/-1}}
 .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .tile{background:var(--surface);border-radius:12px;padding:12px;box-shadow:var(--shadow);min-width:0}
 .tile .v{font-family:var(--f-display);font-weight:700;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -175,8 +178,8 @@ h3{font-size:1.05rem;font-weight:700;margin:0}
 .rest-fill{height:100%;background:var(--accent);border-radius:99px}
 
 /* Pestañas */
-.tabbar{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
-.tab{position:relative;background:none;border:0;color:var(--muted);padding:8px 0 6px;font-weight:600;font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:3px}
+.tabbar{display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-top:1px solid var(--line);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+.tab{position:relative;background:none;border:0;color:var(--muted);padding:8px 0 6px;font-weight:600;font-size:.62rem;letter-spacing:.02em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:3px}
 .tab svg{width:24px;height:24px}
 .tab.on{color:var(--accent)}
 .tab .dot{position:absolute;top:6px;left:calc(50% + 10px);width:8px;height:8px;border-radius:50%;background:var(--done-fg)}
@@ -212,6 +215,7 @@ textarea{font-family:ui-monospace,Menlo,monospace;font-size:13px;min-height:120p
   <nav class="tabbar" aria-label="Secciones">
     <button class="tab" data-act="tab" data-tab="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Historial</button>
     <button class="tab" data-act="tab" data-tab="train"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>Entrenar<span class="dot" id="tabdot" hidden></span></button>
+    <button class="tab" data-act="tab" data-tab="cardio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2.5-6 4 12 2.5-6H21"/></svg>Cardio</button>
     <button class="tab" data-act="tab" data-tab="exercises"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg>Ejercicios</button>
     <button class="tab" data-act="tab" data-tab="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>Perfil</button>
   </nav>
@@ -301,6 +305,9 @@ function fmtDur(ms){const m=Math.max(1,Math.round(ms/60000));const h=Math.floor(
 const sod=t=>{const d=new Date(t);d.setHours(0,0,0,0);return d.getTime()};
 function ago(t){const d=Math.round((sod(Date.now())-sod(t))/DAY);return d<=0?'hoy':d===1?'ayer':`hace ${d} días`}
 const fmtDate=t=>new Date(t).toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'});
+function isoDay(t){const d=new Date(t);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+function cardioEntries(){const out=[];S.history.forEach(h=>h.exercises.forEach(ex=>{if(!isCardio(ex.exId))return;let m=0,d=0;ex.sets.forEach(s=>{m+=s.r||0;d+=s.w||0});out.push({h,t:h.start,name:exById(ex.exId).name,m,d,inWk:!h.cardioOnly})}));return out.sort((a,b)=>a.t-b.t)}
+function cxSpeed(){const m=num(ui.cxMin),d=num(ui.cxKm);return m>0&&d>0?'Velocidad media: '+fmtN(Math.round(d/(m/60)*10)/10)+' km/h':''}
 function weekStart(t){const d=new Date(t);d.setHours(0,0,0,0);return d.getTime()-((d.getDay()+6)%7)*DAY}
 function partName(){const h=new Date().getHours();return h<12?'Entreno de la mañana':h<19?'Entreno de la tarde':'Entreno de la noche'}
 function prsOf(sess,beforeList){
@@ -346,6 +353,34 @@ train(){
     <div class="row"><button class="btn primary grow" data-act="startEmpty">Empezar entreno vacío</button><button class="btn soft" data-act="timer" aria-label="Temporizador de descanso" style="display:flex;align-items:center;gap:6px"><span style="width:20px;height:20px;display:inline-flex">${ICON.timer}</span>Temporizador</button></div>
     <div class="sec-head"><h2>Mis plantillas</h2><button class="btn ghost" data-act="newTpl">+ Plantilla</button></div>
     ${tpls?`<div class="tpl-grid">${tpls}</div>`:'<div class="card muted">Crea una plantilla con tus ejercicios para empezar con un toque.</div>'}
+  </div>`;
+},
+cardio(){
+  const cx=S.exercises.filter(e=>e.muscle==='Cardio');
+  if(!ui.cx||!cx.some(e=>e.id===ui.cx))ui.cx=cx[0]&&cx[0].id;
+  if(!ui.cxDate)ui.cxDate=isoDay(Date.now());
+  const entries=cardioEntries();
+  const now=Date.now(),ws=weekStart(now);
+  const wk=entries.filter(x=>x.t>=ws);const wm=wk.reduce((a,x)=>a+x.m,0),wd=wk.reduce((a,x)=>a+x.d,0);
+  const weeks=[];for(let i=7;i>=0;i--){const a=ws-i*7*DAY,b=a+7*DAY;weeks.push({t:a,v:Math.round(entries.filter(x=>x.t>=a&&x.t<b).reduce((s,x)=>s+x.m,0)),cur:i===0})}
+  const recent=entries.slice(-12).reverse();
+  return `<div class="wrap"><h1>Cardio</h1>
+    <div class="card stack"><h3>Registrar cardio</h3>
+      <div class="seg">${cx.map(e=>`<button class="chip${ui.cx===e.id?' on':''}" data-act="cxPick" data-id="${e.id}">${esc(e.name)}</button>`).join('')}</div>
+      <div class="cx-grid">
+        <div class="field"><label class="label" for="cx-min">Minutos</label><input id="cx-min" inputmode="decimal" placeholder="30" value="${esc(ui.cxMin||'')}" autocomplete="off"></div>
+        <div class="field"><label class="label" for="cx-km">Km (opcional)</label><input id="cx-km" inputmode="decimal" placeholder="5" value="${esc(ui.cxKm||'')}" autocomplete="off"></div>
+        <div class="field"><label class="label" for="cx-date">Fecha</label><input id="cx-date" type="date" max="${isoDay(now)}" value="${esc(ui.cxDate)}"></div>
+      </div>
+      <p class="hint" id="cx-speed" style="margin:0;text-align:left">${cxSpeed()}</p>
+      <button class="btn primary block" data-act="cxSave">Guardar cardio</button>
+    </div>
+    <div class="tiles"><div class="tile"><div class="v">${fmtN(Math.round(wm))}</div><div class="k">Min esta semana</div></div>
+      <div class="tile"><div class="v">${fmtN(Math.round(wd*10)/10)}</div><div class="k">Km esta semana</div></div>
+      <div class="tile"><div class="v">${wk.length}</div><div class="k">Sesiones</div></div></div>
+    <div class="card stack"><h3>Minutos por semana</h3>${barChart(weeks,'Minutos de cardio por semana, últimas 8 semanas')}</div>
+    <div class="sec-head"><h2>Últimas sesiones</h2></div>
+    ${recent.length?`<div class="exlist">${recent.map(x=>`<button class="exitem" data-act="sess" data-id="${x.h.id}"><span class="badge">${esc(x.name[0])}</span><span class="grow"><span style="display:block;font-weight:600">${esc(x.name)}${x.inWk?` <span class="equip">en ${esc(x.h.name)}</span>`:''}</span><span class="small muted">${esc(ago(x.t))}${x.d&&x.m?' · '+fmtN(Math.round(x.d/(x.m/60)*10)/10)+' km/h':''}</span></span><span class="small num-t" style="text-align:right">${fmtN(x.m)} min${x.d?'<br><span class="muted">'+fmtN(x.d)+' km</span>':''}</span></button>`).join('')}</div>`:'<div class="card muted">Aún no tienes sesiones de cardio. Registra la primera arriba.</div>'}
   </div>`;
 },
 exercises(){
@@ -425,10 +460,10 @@ function exListHTML(q,m,picked){
 }
 
 /* ---------- Gráficas ---------- */
-function barChart(weeks){
+function barChart(weeks,aria){
   const W=340,H=150,l=26,r=8,t=14,b=24;const top=Math.max(3,...weeks.map(w=>w.v));const step=top<=5?1:Math.ceil(top/4);const max=Math.ceil(top/step)*step;const ticks=[];for(let v=0;v<=max;v+=step)ticks.push(v);
   const bw=(W-l-r)/weeks.length;const y=v=>t+(H-t-b)*(1-v/max);
-  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Entrenos por semana, últimas 8 semanas">`;
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria||'Entrenos por semana, últimas 8 semanas'}">`;
   ticks.forEach(v=>{s+=`<line class="grid" x1="${l}" x2="${W-r}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${l-6}" y="${y(v)+4}" text-anchor="end">${v}</text>`});
   weeks.forEach((w,i)=>{const x=l+i*bw+bw*0.18,ww=bw*0.64;const h=Math.max(0,y(0)-y(w.v));
     s+=`<rect class="bar${w.cur?' cur':''}" x="${x}" y="${y(w.v)}" width="${ww}" height="${h}" rx="3"/>`;
@@ -647,6 +682,13 @@ function doImport(text){
 }
 
 const A={
+  cxPick(b){ui.cx=b.dataset.id;render()},
+  cxSave(){const m=num(ui.cxMin);if(!(m>0)){toast('Escribe los minutos');const el=$('#cx-min');el&&el.focus();return}
+    const d=Math.max(0,num(ui.cxKm)||0);const e=exById(ui.cx);
+    let start;const today=isoDay(Date.now());
+    if(!ui.cxDate||ui.cxDate>=today)start=Date.now()-m*60000;else{const [y,mo,da]=ui.cxDate.split('-').map(Number);start=new Date(y,mo-1,da,12,0,0).getTime()}
+    S.history.push({id:uid(),name:e.name,start,end:start+m*60000,cardioOnly:true,exercises:[{exId:e.id,sets:[{w:d,r:m,t:'n',done:true}]}]});
+    S.history.sort((a,b)=>a.start-b.start);save();ui.cxMin='';ui.cxKm='';ui.cxDate=today;render();toast(e.name+' guardado: '+fmtN(m)+' min'+(d?' · '+fmtN(d)+' km':''))},
   tab(b){ui.tab=b.dataset.tab;ui.confirm=null;render();$('#main').scrollTop=0},
   close(){closeSheet()},
   startEmpty(){startWorkout(partName(),[],null)},
@@ -740,6 +782,8 @@ document.addEventListener('input',ev=>{
   if(el.id==='ex-q'){ui.q=el.value;$('#exlist').innerHTML=exListHTML(ui.q,ui.m,null);return}
   if(el.id==='pick-q'){ui.pq=el.value;$('#pick-list').innerHTML=exListHTML(ui.pq,'Todos',ui.picked);return}
   if(el.id==='tpl-name'&&ui.draft){ui.draft.name=el.value}
+  if(el.id==='cx-min'||el.id==='cx-km'){ui[el.id==='cx-min'?'cxMin':'cxKm']=el.value;const sp=$('#cx-speed');if(sp)sp.textContent=cxSpeed();return}
+  if(el.id==='cx-date'){ui.cxDate=el.value}
 });
 document.addEventListener('change',ev=>{
   if(ev.target.id==='imp-file'){const f=ev.target.files&&ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>doImport(String(r.result));r.onerror=()=>toast('No se pudo leer el archivo');r.readAsText(f)}
