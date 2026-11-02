@@ -406,6 +406,7 @@ profile(){
       <div class="label">Iniciar descanso al marcar una serie</div><div class="seg">${[['1','Automático'],['0','Solo manual']].map(([v,t])=>`<button class="chip${(S.settings.autoRest!==false)===(v==='1')?' on':''}" data-act="autoRest" data-v="${v}">${t}</button>`).join('')}</div>
       <div class="label">Descanso por defecto</div><div class="seg">${restOpts.map(s=>`<button class="chip${S.settings.rest===s?' on':''}" data-act="defRest" data-s="${s}">${fmtClock(s*1000)}</button>`).join('')}</div>
     </div>
+    <p class="muted small" style="margin:0;text-align:center">Versión 11</p>
     <div class="card stack"><h3>Copia de seguridad</h3>
       <p class="muted small" style="margin:0">Tus datos se guardan solo en este navegador. Exporta una copia de vez en cuando y guárdala en Notas o Archivos.</p>
       <div class="row"><button class="btn soft grow" data-act="export">Exportar</button><button class="btn soft grow" data-act="importOpen">Importar</button></div>
@@ -801,7 +802,11 @@ if(S.active)requestWake();
 })();
 </script>
 <script>
-if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{})})}
+if('serviceWorker' in navigator){
+  const had=!!navigator.serviceWorker.controller;let reloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had&&!reloaded){reloaded=true;location.reload()}});
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(r=>{r.update().catch(()=>{});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')r.update().catch(()=>{})})}).catch(()=>{})});
+}
 </script>
 </body>
 </html>
