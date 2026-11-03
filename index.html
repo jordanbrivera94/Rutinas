@@ -171,6 +171,7 @@ textarea.note-ta{font-family:var(--f-body);font-size:16px;min-height:72px}
 .body-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
 .body-row .icon-btn{width:32px;height:32px}
 .body-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.body-grid .full{grid-column:1/-1}
+.chg{font-weight:700;font-size:.9rem;font-variant-numeric:tabular-nums;color:var(--muted)}.chg.up{color:var(--done-fg)}.chg.down{color:var(--plate-r)}
 .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .tile{background:var(--surface);border-radius:12px;padding:12px;box-shadow:var(--shadow);min-width:0}
 .tile .v{font-family:var(--f-display);font-weight:700;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -428,7 +429,7 @@ const PT={
 '{x} en el tiempo':'{x} ao longo do tempo','Añadidas {n} series de calentamiento':'{n} séries de aquecimento adicionadas','Peso puesto: {w}':'Peso definido: {w}',
 'Plantilla {n} actualizada':'Modelo {n} atualizado','Plantilla «{n}» guardada':'Modelo «{n}» salvo','Superserie: ahora {x}':'Superssérie: agora {x}','{x} guardado: {d}':'{x} salvo: {d}',
 'DURACIÓN':'DURAÇÃO','VOLUMEN':'VOLUME','SERIES':'SÉRIES','CARDIO':'CARDIO','EJERCICIO':'EXERCÍCIO','MEJOR SERIE':'MELHOR SÉRIE','+ {n} ejercicios más':'+ {n} exercícios a mais',
-'RÉCORD NUEVO':'RECORDE NOVO','RÉCORDS NUEVOS':'RECORDES NOVOS','Copia de Rutinas Gym':'Backup do Rutinas Gym','Últimas sesiones':'Últimas sessões','¿?':'?','Versión {v}':'Versão {v}',
+'RÉCORD NUEVO':'RECORDE NOVO','RÉCORDS NUEVOS':'RECORDES NOVOS','Copia de Rutinas Gym':'Backup do Rutinas Gym','Últimas sesiones':'Últimas sessões','Volumen':'Volume','Reps totales':'Reps totais','Velocidad':'Velocidade','3 meses':'3 meses','1 año':'1 ano','Todo':'Tudo','No hay suficientes sesiones en este periodo.':'Não há sessões suficientes neste período.','{n} sesiones · mejor: {b}':'{n} sessões · melhor: {b}','¿?':'?','Versión {v}':'Versão {v}',
 'Entreno':'Treino','Entreno de la mañana':'Treino da manhã','Entreno de la tarde':'Treino da tarde','Entreno de la noche':'Treino da noite'
 };
 const PT_EX={'Press de banca':'Supino reto','Press inclinado':'Supino inclinado','Cruce de poleas':'Crossover','Aperturas':'Crucifixo','Fondos':'Mergulho','Press militar':'Desenvolvimento militar',
@@ -718,7 +719,7 @@ profile(){
       <button class="btn primary block" data-act="saveBackup">Guardar copia en un archivo</button>
       <div class="row"><button class="btn soft grow" data-act="export">Copiar como texto</button><button class="btn soft grow" data-act="importOpen">Importar</button></div>
     </div>
-    <p class="muted small" style="margin:0;text-align:center">${tr('Versión {v}',{v:14})}</p>
+    <p class="muted small" style="margin:0;text-align:center">${tr('Versión {v}',{v:15})}</p>
     ${S.history.some(x=>x.example)?`<button class="btn block danger-t" data-act="clearExamples">${ui.confirm==='ex'?'Toca otra vez para borrar los ejemplos':'Borrar entrenos de ejemplo'}</button>`:''}
   </div>`;
 }
@@ -797,10 +798,29 @@ function cardioInfo(e){
       <div class="tile"><div class="v">${bd?fmtN(Math.round(bd*10)/10):'—'}</div><div class="k">Más km en una sesión</div></div>
       <div class="tile"><div class="v">${bs?fmtN(Math.round(bs*10)/10):'—'}</div><div class="k">Mejor velocidad (km/h)</div></div>
     </div>
-    <div class="stack"><h3>${useD?'Kilómetros por sesión':'Minutos por sesión'}</h3>${lineChart(useD?ptsD:ptsM,useD?'Kilómetros por sesión':'Minutos por sesión','Con dos sesiones o más verás aquí tu progreso.')}</div>
+    ${exChart(e,true)}
     ${recent.length?`<div class="stack"><h3>Últimas sesiones</h3>${recent.map(h=>{const sets=h.exercises.filter(x=>x.exId===e.id).flatMap(x=>x.sets);return `<div class="stack" style="gap:4px"><div class="label">${esc(fmtDate(h.start))}</div>${setsTbl(sets,true)}</div>`}).join('')}</div>`:'<p class="muted">Aún no has hecho este ejercicio.</p>'}
     <div class="sheet-foot"><button class="btn" data-act="${ui.sheet.back?'exinfoBack':'close'}">${ui.sheet.back?'Volver':'Cerrar'}</button></div>`;
 }
+const CH_S=[['e1rm','1RM estimado'],['maxw','Peso máximo'],['vol','Volumen'],['best','Mejor serie'],['reps','Reps totales']];
+const CH_C=[['min','Minutos'],['km','Km'],['spd','Velocidad']];
+const CH_P=[[90,'3 meses'],[365,'1 año'],[0,'Todo']];
+function exSeries(e,c,metric){const out=[];S.history.forEach(h=>{const sets=h.exercises.filter(x=>x.exId===e.id).flatMap(x=>x.sets).filter(st=>c||st.t!=='w');if(!sets.length)return;let v=0;
+  if(c){const m=sets.reduce((a,st)=>a+(st.r||0),0),d=sets.reduce((a,st)=>a+(st.w||0),0);v=metric==='min'?m:metric==='km'?d:(d>0&&m>0?d/(m/60):0)}
+  else if(metric==='e1rm')v=Math.max(0,...sets.map(st=>e1rm(st.w,st.r)));else if(metric==='maxw')v=Math.max(0,...sets.map(st=>st.w||0));
+  else if(metric==='vol')v=sets.reduce((a,st)=>a+(st.w||0)*(st.r||0),0);else if(metric==='best')v=Math.max(0,...sets.map(st=>(st.w||0)*(st.r||0)));else v=sets.reduce((a,st)=>a+(st.r||0),0);
+  if(v>0)out.push({t:h.start,v:Math.round(v*10)/10})});return out}
+function exChart(e,c){const ms=c?CH_C:CH_S;let m=ui.chM;if(!ms.some(x=>x[0]===m))m=ms[0][0];const per=ui.chP!=null?ui.chP:0;
+  const all=exSeries(e,c,m);const pts=per?all.filter(p=>p.t>=Date.now()-per*DAY):all;
+  const unit=c?(m==='min'?'min':m==='km'?'km':'km/h'):(m==='reps'?'reps':U());
+  let delta='';if(pts.length>=2){const a=pts[0].v,b=pts[pts.length-1].v,d=Math.round((b-a)*10)/10;const pc=a?Math.round((b-a)/a*100):0;delta=`<span class="chg${d>0?' up':d<0?' down':''}">${d>0?'+':''}${fmtN(d)} ${unit}${a?` (${pc>0?'+':''}${pc} %)`:''}</span>`}
+  const lab=tr((ms.find(x=>x[0]===m)||ms[0])[1]);
+  return `<div class="stack"><div class="row wrapr" style="justify-content:space-between;gap:4px 10px"><h3>${esc(lab)} <span class="muted small">(${esc(unit)})</span></h3>${delta}</div>
+    <div class="seg">${ms.map(([k,l])=>`<button class="chip${m===k?' on':''}" data-act="chM" data-k="${k}">${esc(tr(l))}</button>`).join('')}</div>
+    ${lineChart(pts,lab,tr(per&&all.length>=2?'No hay suficientes sesiones en este periodo.':'Con dos sesiones o más verás aquí tu progreso.'))}
+    <div class="seg">${CH_P.map(([d,l])=>`<button class="chip${per===d?' on':''}" data-act="chP" data-d="${d}">${esc(tr(l))}</button>`).join('')}</div>
+    ${pts.length>=2?`<p class="muted small" style="margin:0">${esc(tr('{n} sesiones · mejor: {b}',{n:pts.length,b:fmtN(Math.max(...pts.map(p=>p.v)))+' '+unit}))}</p>`:''}
+  </div>`}
 function lineChart(pts,label,emptyMsg){
   if(pts.length<2)return `<p class="muted small" style="margin:0">${emptyMsg||'Con dos sesiones o más con peso verás aquí tu progreso.'}</p>`;
   const W=340,H=160,l=40,r=14,t=16,b=24;
@@ -882,7 +902,7 @@ exinfo(){
       <div class="tile"><div class="v" style="font-size:1.3rem">${bestVol?setTxtShort(bestVol):'—'}</div><div class="k">Mejor serie (volumen)</div></div>
       <div class="tile"><div class="v">${sess.length}</div><div class="k">Sesiones</div></div>
     </div>
-    <div class="stack"><h3>1RM estimado</h3>${lineChart(pts)}</div>
+    ${exChart(e,false)}
     ${recent.length?`<div class="stack"><h3>Últimas sesiones</h3>${recent.map(h=>{const sets=h.exercises.filter(x=>x.exId===e.id).flatMap(x=>x.sets);return `<div class="stack" style="gap:4px"><div class="label">${esc(fmtDate(h.start))}</div>${setsTbl(sets,false)}</div>`}).join('')}</div>`:'<p class="muted">Aún no has hecho este ejercicio.</p>'}
     <p class="muted small" style="margin:0">El 1RM estimado usa la fórmula de Epley: peso × (1 + reps/30). Las series de calentamiento no cuentan.</p>
     <div class="sheet-foot"><button class="btn" data-act="${ui.sheet.back?'exinfoBack':'close'}">${ui.sheet.back?'Volver':'Cerrar'}</button></div>`;
@@ -1059,6 +1079,8 @@ const A={
     if(!ws.length){toast('El peso es muy bajo para calentar con series más ligeras');return}
     ex.sets=ws.concat(ex.sets);save();ui.sheet=null;ui.confirm=null;render();toast(tr('Añadidas {n} series de calentamiento',{n:ws.length}))},
   setLang(b){const l=b.dataset.l==='pt'?'pt':'es';if(l===LANG())return;S.settings.lang=l;save();location.reload()},
+  chM(b){ui.chM=b.dataset.k;renderSheet()},
+  chP(b){ui.chP=+b.dataset.d;renderSheet()},
   rirSet(b){S.settings.rir=b.dataset.v==='1';save();render()},
   calPrev(){ui.calOff=(ui.calOff||0)-1;render()},
   calNext(){ui.calOff=Math.min(0,(ui.calOff||0)+1);render()},
