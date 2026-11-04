@@ -101,7 +101,6 @@ h3{font-size:1.05rem;font-weight:700;margin:0}
 .set-row.head span{text-align:center}
 .set-row.head span:nth-child(2){text-align:left}
 .set-row.upnext{background:var(--accent-soft)}
-.set-row.upnext .setn{box-shadow:inset 0 0 0 2px var(--accent)}
 .set-row.done{background:var(--done-bg)}
 .setn{border:0;background:var(--surface2);border-radius:8px;height:34px;font-family:var(--f-display);font-weight:700;font-size:1.05rem}
 .set-row.done .setn{background:transparent}
@@ -736,7 +735,7 @@ profile(){
       <button class="btn primary block" data-act="saveBackup">Guardar copia en un archivo</button>
       <div class="row"><button class="btn soft grow" data-act="export">Copiar como texto</button><button class="btn soft grow" data-act="importOpen">Importar</button></div>
     </div>
-    <p class="muted small" style="margin:0;text-align:center">${tr('Versión {v}',{v:19})}</p>
+    <p class="muted small" style="margin:0;text-align:center">${tr('Versión {v}',{v:20})}</p>
     ${S.history.some(x=>x.example)?`<button class="btn block danger-t" data-act="clearExamples">${ui.confirm==='ex'?'Toca otra vez para borrar los ejemplos':'Borrar entrenos de ejemplo'}</button>`:''}
   </div>`;
 }
