@@ -177,6 +177,16 @@ textarea.note-ta{font-family:var(--f-body);font-size:16px;min-height:72px}
 .ex-chev{color:var(--accent);font-size:.85rem;width:28px;height:28px;border-radius:8px;background:var(--accent-soft);display:grid;place-items:center;flex:none}
 .prog .chg{font-size:.82rem;white-space:nowrap}
 .chg{font-weight:700;font-size:.9rem;font-variant-numeric:tabular-nums;color:var(--muted)}.chg.up{color:var(--done-fg)}.chg.down{color:var(--plate-r)}
+.ex-top{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.reorder{position:fixed;inset:0;z-index:70;background:var(--scrim);touch-action:none;-webkit-user-select:none;user-select:none}
+.reorder{-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.ro-hint{position:absolute;left:0;right:0;top:calc(22px + env(safe-area-inset-top,0px));display:flex;justify-content:center;padding-inline:16px}
+.ro-hint span{background:var(--surface);color:var(--fg);font-weight:600;font-size:.92rem;padding:9px 16px;border-radius:999px;box-shadow:var(--shadow);text-align:center}
+.ro-list{position:absolute;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));max-width:600px;margin:0 auto}
+.ro-item{position:absolute;left:0;right:0;top:0;height:calc(var(--row) - 6px);display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--surface);color:var(--fg);border-radius:12px;box-shadow:var(--shadow);font-weight:600;transition:transform .15s ease}
+.ro-item.drag{transition:none;z-index:2;box-shadow:0 10px 28px rgba(0,0,0,.35);outline:2px solid var(--accent)}
+.ro-grip{color:var(--muted);font-size:1.25rem;line-height:1}
+@media (prefers-reduced-motion:reduce){.ro-item{transition:none}}
 .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .tile{background:var(--surface);border-radius:12px;padding:12px;box-shadow:var(--shadow);min-width:0}
 .tile .v{font-family:var(--f-display);font-weight:700;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -434,7 +444,7 @@ const PT={
 '{x} en el tiempo':'{x} ao longo do tempo','Añadidas {n} series de calentamiento':'{n} séries de aquecimento adicionadas','Peso puesto: {w}':'Peso definido: {w}',
 'Plantilla {n} actualizada':'Modelo {n} atualizado','Plantilla «{n}» guardada':'Modelo «{n}» salvo','Superserie: ahora {x}':'Superssérie: agora {x}','{x} guardado: {d}':'{x} salvo: {d}',
 'DURACIÓN':'DURAÇÃO','VOLUMEN':'VOLUME','SERIES':'SÉRIES','CARDIO':'CARDIO','EJERCICIO':'EXERCÍCIO','MEJOR SERIE':'MELHOR SÉRIE','+ {n} ejercicios más':'+ {n} exercícios a mais',
-'RÉCORD NUEVO':'RECORDE NOVO','RÉCORDS NUEVOS':'RECORDES NOVOS','Copia de Rutinas Gym':'Backup do Rutinas Gym','Últimas sesiones':'Últimas sessões','Toca el nombre de un ejercicio para ver su progreso.':'Toque no nome de um exercício para ver o progresso.','Ver todas las gráficas':'Ver todos os gráficos','Aún no hay datos para la gráfica de este ejercicio.':'Ainda não há dados para o gráfico deste exercício.','Progreso de los ejercicios':'Progresso dos exercícios','El punto grande es este entreno. Toca un ejercicio para ver todas sus gráficas.':'O ponto grande é este treino. Toque num exercício para ver todos os gráficos.','Primera vez':'Primeira vez','Distancia':'Distância','Igual que la anterior':'Igual à anterior','{d} vs la anterior':'{d} vs a anterior','Volumen':'Volume','Reps totales':'Reps totais','Velocidad':'Velocidade','3 meses':'3 meses','1 año':'1 ano','Todo':'Tudo','No hay suficientes sesiones en este periodo.':'Não há sessões suficientes neste período.','{n} sesiones · mejor: {b}':'{n} sessões · melhor: {b}','¿?':'?','Versión {v}':'Versão {v}',
+'RÉCORD NUEVO':'RECORDE NOVO','RÉCORDS NUEVOS':'RECORDES NOVOS','Copia de Rutinas Gym':'Backup do Rutinas Gym','Últimas sesiones':'Últimas sessões','Toca el nombre de un ejercicio para ver su progreso.':'Toque no nome de um exercício para ver o progresso.','Ver todas las gráficas':'Ver todos os gráficos','Aún no hay datos para la gráfica de este ejercicio.':'Ainda não há dados para o gráfico deste exercício.','Progreso de los ejercicios':'Progresso dos exercícios','Desliza y suelta para cambiar el orden':'Arraste e solte para mudar a ordem','Mantén apretado el nombre de un ejercicio y deslízalo para cambiar el orden.':'Segure o nome de um exercício e arraste para mudar a ordem.','Superserie separada al mover el ejercicio':'Superssérie separada ao mover o exercício','El punto grande es este entreno. Toca un ejercicio para ver todas sus gráficas.':'O ponto grande é este treino. Toque num exercício para ver todos os gráficos.','Primera vez':'Primeira vez','Distancia':'Distância','Igual que la anterior':'Igual à anterior','{d} vs la anterior':'{d} vs a anterior','Volumen':'Volume','Reps totales':'Reps totais','Velocidad':'Velocidade','3 meses':'3 meses','1 año':'1 ano','Todo':'Tudo','No hay suficientes sesiones en este periodo.':'Não há sessões suficientes neste período.','{n} sesiones · mejor: {b}':'{n} sessões · melhor: {b}','¿?':'?','Versión {v}':'Versão {v}',
 'Entreno':'Treino','Entreno de la mañana':'Treino da manhã','Entreno de la tarde':'Treino da tarde','Entreno de la noche':'Treino da noite'
 };
 const PT_EX={'Press de banca':'Supino reto','Press inclinado':'Supino inclinado','Cruce de poleas':'Crossover','Aperturas':'Crucifixo','Fondos':'Mergulho','Press militar':'Desenvolvimento militar',
@@ -724,7 +734,7 @@ profile(){
       <button class="btn primary block" data-act="saveBackup">Guardar copia en un archivo</button>
       <div class="row"><button class="btn soft grow" data-act="export">Copiar como texto</button><button class="btn soft grow" data-act="importOpen">Importar</button></div>
     </div>
-    <p class="muted small" style="margin:0;text-align:center">${tr('Versión {v}',{v:17})}</p>
+    <p class="muted small" style="margin:0;text-align:center">${tr('Versión {v}',{v:18})}</p>
     ${S.history.some(x=>x.example)?`<button class="btn block danger-t" data-act="clearExamples">${ui.confirm==='ex'?'Toca otra vez para borrar los ejemplos':'Borrar entrenos de ejemplo'}</button>`:''}
   </div>`;
 }
@@ -761,6 +771,7 @@ function viewWorkout(){
       <button class="btn sm addset" data-act="addset" data-i="${i}">+ ${c?'Añadir otro bloque':'Añadir serie'}</button></section>`;
   });
   h+=`<button class="btn block soft" data-act="addex">Añadir ejercicios</button>
+    ${a.exercises.length>1?'<p class="hint">Mantén apretado el nombre de un ejercicio y deslízalo para cambiar el orden.</p>':''}
     <p class="hint">Toca el número de serie para cambiar su tipo: <b class="c-w">W</b> calentamiento · <b class="c-d">D</b> drop set · <b class="c-f">F</b> al fallo</p>
     <button class="btn block danger-t" data-act="cancelwk">${ui.confirm==='cancel'?'Toca otra vez para descartar el entreno':'Cancelar entreno'}</button></div>`;
   return h;
@@ -1254,6 +1265,30 @@ document.addEventListener('change',ev=>{
   if(ev.target.id==='imp-file'){const f=ev.target.files&&ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>doImport(String(r.result));r.onerror=()=>toast('No se pudo leer el archivo');r.readAsText(f)}
 });
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&ui.sheet)closeSheet()});
+
+/* ---------- Reordenar ejercicios manteniendo apretado ---------- */
+const RO={timer:null,sx:0,sy:0,i:-1,on:false,ov:null,from:0,to:0,top:0,R:58,suppress:false};
+function roCancel(){clearTimeout(RO.timer);RO.timer=null}
+function roStart(y){RO.timer=null;const ex=S.active&&S.active.exercises;if(!ex||ex.length<2||RO.i<0||RO.i>=ex.length)return;
+  RO.on=true;RO.suppress=true;RO.from=RO.to=RO.i;RO.y0=y;const H=window.innerHeight,n=ex.length;
+  const R=RO.R=Math.max(40,Math.min(58,Math.floor((H-170)/n)));let top=y-RO.from*R-R/2;top=Math.max(80,Math.min(top,H-n*R-90));RO.top=top;
+  const ov=document.createElement('div');ov.className='reorder';
+  ov.innerHTML=`<div class="ro-hint"><span>${esc(tr('Desliza y suelta para cambiar el orden'))}</span></div><div class="ro-list" style="top:${top}px;height:${n*R}px;--row:${R}px">${ex.map((x,k)=>`<div class="ro-item${k===RO.from?' drag':''}" style="transform:translateY(${k*R}px)"><span class="ro-grip" aria-hidden="true">≡</span><span class="grow trunc">${esc(exName(exById(x.exId)))}</span><span class="small muted num-t">${x.sets.length} ${esc(tr('ser.'))}</span></div>`).join('')}</div>`;
+  document.body.appendChild(ov);RO.ov=ov;try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}roMove(y)}
+function roMove(y){if(!RO.ov||!S.active)return;const R=RO.R,n=S.active.exercises.length;const dy=Math.max(-R/2,Math.min(RO.from*R+(y-RO.y0),(n-1)*R+R/2));const to=Math.max(0,Math.min(n-1,Math.round(dy/R)));RO.to=to;
+  RO.ov.querySelectorAll('.ro-item').forEach((el,k)=>{if(k===RO.from){el.style.transform=`translateY(${dy}px) scale(1.03)`;return}let q=k;if(RO.from<to&&k>RO.from&&k<=to)q=k-1;else if(RO.from>to&&k>=to&&k<RO.from)q=k+1;el.style.transform=`translateY(${q*R}px)`})}
+function roEnd(){RO.on=false;if(RO.ov){RO.ov.remove();RO.ov=null}const a=S.active;setTimeout(()=>{RO.suppress=false},80);if(!a)return;const f=RO.from,to=RO.to;if(f===to)return;
+  const ex=a.exercises;let broke=false;if(ex[f].ss){ex[f].ss=false;broke=true}if(f>0&&ex[f-1].ss){ex[f-1].ss=false;broke=true}
+  const [m]=ex.splice(f,1);ex.splice(to,0,m);if(to>0&&ex[to-1].ss){ex[to-1].ss=false;broke=true}
+  save();render();if(broke)toast('Superserie separada al mover el ejercicio')}
+document.addEventListener('pointerdown',ev=>{if(!S.active||ui.tab!=='train'||ui.sheet||RO.on)return;const top=ev.target.closest('#main .ex-top');if(!top||ev.target.closest('.icon-btn'))return;
+  const sec=top.closest('section.ex');RO.i=[...document.querySelectorAll('#main section.ex')].indexOf(sec);if(RO.i<0)return;RO.sx=ev.clientX;RO.sy=ev.clientY;roCancel();const y=ev.clientY;RO.timer=setTimeout(()=>roStart(RO.lastY!=null?RO.lastY:y),420);RO.lastY=y});
+document.addEventListener('pointermove',ev=>{if(RO.timer){RO.lastY=ev.clientY;if(Math.abs(ev.clientX-RO.sx)>8||Math.abs(ev.clientY-RO.sy)>8)roCancel()}if(RO.on){ev.preventDefault();roMove(ev.clientY)}});
+document.addEventListener('pointerup',()=>{roCancel();if(RO.on)roEnd()});
+document.addEventListener('pointercancel',()=>{roCancel();if(RO.on)roEnd()});
+document.addEventListener('touchmove',ev=>{if(RO.on)ev.preventDefault()},{passive:false});
+document.addEventListener('click',ev=>{if(RO.suppress){RO.suppress=false;ev.stopPropagation();ev.preventDefault()}},true);
+document.addEventListener('contextmenu',ev=>{if(RO.on||RO.timer)ev.preventDefault()});
 
 let lastTick=0;
 setInterval(()=>{
