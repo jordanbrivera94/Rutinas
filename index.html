@@ -193,6 +193,8 @@ textarea.note-ta{font-family:var(--f-body);font-size:16px;min-height:72px}
 .note-ic{color:var(--plate-y);display:inline-flex;width:20px;height:20px}.note-ic svg{width:20px;height:20px}
 .ex-note{border-left:3px solid var(--plate-y)}
 .note-row{display:flex;gap:8px;align-items:flex-start}.note-row textarea{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface2);border-radius:10px;padding:10px 12px;width:100%}
+.wk-switch{margin-top:8px}
+.wk-switch .chip{flex:1;text-align:center}
 .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .tile{background:var(--surface);border-radius:12px;padding:12px;box-shadow:var(--shadow);min-width:0}
 .tile .v{font-family:var(--f-display);font-weight:700;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -450,7 +452,7 @@ const PT={
 '{x} en el tiempo':'{x} ao longo do tempo','Añadidas {n} series de calentamiento':'{n} séries de aquecimento adicionadas','Peso puesto: {w}':'Peso definido: {w}',
 'Plantilla {n} actualizada':'Modelo {n} atualizado','Plantilla «{n}» guardada':'Modelo «{n}» salvo','Superserie: ahora {x}':'Superssérie: agora {x}','{x} guardado: {d}':'{x} salvo: {d}',
 'DURACIÓN':'DURAÇÃO','VOLUMEN':'VOLUME','SERIES':'SÉRIES','CARDIO':'CARDIO','EJERCICIO':'EXERCÍCIO','MEJOR SERIE':'MELHOR SÉRIE','+ {n} ejercicios más':'+ {n} exercícios a mais',
-'RÉCORD NUEVO':'RECORDE NOVO','RÉCORDS NUEVOS':'RECORDES NOVOS','Copia de Rutinas Gym':'Backup do Rutinas Gym','Últimas sesiones':'Últimas sessões','Toca el nombre de un ejercicio para ver su progreso.':'Toque no nome de um exercício para ver o progresso.','Ver todas las gráficas':'Ver todos os gráficos','Aún no hay datos para la gráfica de este ejercicio.':'Ainda não há dados para o gráfico deste exercício.','Progreso de los ejercicios':'Progresso dos exercícios','Notas':'Notas','Nota':'Nota','Borrar nota':'Apagar nota','Aún no tienes notas para este ejercicio.':'Você ainda não tem notas para este exercício.','Nueva nota':'Nova nota','Añadir nota':'Adicionar nota','Las notas se guardan en el ejercicio y aparecen cada vez que lo haces. Puedes editarlas tocando el texto.':'As notas ficam salvas no exercício e aparecem toda vez que você o faz. Você pode editá-las tocando no texto.','Escribe la nota':'Escreva a nota','Nota añadida':'Nota adicionada','Notas del ejercicio':'Notas do exercício','Notas del ejercicio ({n})':'Notas do exercício ({n})','Desliza y suelta para cambiar el orden':'Arraste e solte para mudar a ordem','Mantén apretado el nombre de un ejercicio y deslízalo para cambiar el orden.':'Segure o nome de um exercício e arraste para mudar a ordem.','Superserie separada al mover el ejercicio':'Superssérie separada ao mover o exercício','El punto grande es este entreno. Toca un ejercicio para ver todas sus gráficas.':'O ponto grande é este treino. Toque num exercício para ver todos os gráficos.','Primera vez':'Primeira vez','Distancia':'Distância','Igual que la anterior':'Igual à anterior','{d} vs la anterior':'{d} vs a anterior','Volumen':'Volume','Reps totales':'Reps totais','Velocidad':'Velocidade','3 meses':'3 meses','1 año':'1 ano','Todo':'Tudo','No hay suficientes sesiones en este periodo.':'Não há sessões suficientes neste período.','{n} sesiones · mejor: {b}':'{n} sessões · melhor: {b}','¿?':'?','Versión {v}':'Versão {v}',
+'RÉCORD NUEVO':'RECORDE NOVO','RÉCORDS NUEVOS':'RECORDES NOVOS','Copia de Rutinas Gym':'Backup do Rutinas Gym','Últimas sesiones':'Últimas sessões','Toca el nombre de un ejercicio para ver su progreso.':'Toque no nome de um exercício para ver o progresso.','Ver todas las gráficas':'Ver todos os gráficos','Aún no hay datos para la gráfica de este ejercicio.':'Ainda não há dados para o gráfico deste exercício.','Progreso de los ejercicios':'Progresso dos exercícios','Entreno en curso':'Treino em andamento','Plantillas':'Modelos','Tienes un entreno en curso.':'Você tem um treino em andamento.','Volver al entreno':'Voltar ao treino','Notas':'Notas','Nota':'Nota','Borrar nota':'Apagar nota','Aún no tienes notas para este ejercicio.':'Você ainda não tem notas para este exercício.','Nueva nota':'Nova nota','Añadir nota':'Adicionar nota','Las notas se guardan en el ejercicio y aparecen cada vez que lo haces. Puedes editarlas tocando el texto.':'As notas ficam salvas no exercício e aparecem toda vez que você o faz. Você pode editá-las tocando no texto.','Escribe la nota':'Escreva a nota','Nota añadida':'Nota adicionada','Notas del ejercicio':'Notas do exercício','Notas del ejercicio ({n})':'Notas do exercício ({n})','Desliza y suelta para cambiar el orden':'Arraste e solte para mudar a ordem','Mantén apretado el nombre de un ejercicio y deslízalo para cambiar el orden.':'Segure o nome de um exercício e arraste para mudar a ordem.','Superserie separada al mover el ejercicio':'Superssérie separada ao mover o exercício','El punto grande es este entreno. Toca un ejercicio para ver todas sus gráficas.':'O ponto grande é este treino. Toque num exercício para ver todos os gráficos.','Primera vez':'Primeira vez','Distancia':'Distância','Igual que la anterior':'Igual à anterior','{d} vs la anterior':'{d} vs a anterior','Volumen':'Volume','Reps totales':'Reps totais','Velocidad':'Velocidade','3 meses':'3 meses','1 año':'1 ano','Todo':'Tudo','No hay suficientes sesiones en este periodo.':'Não há sessões suficientes neste período.','{n} sesiones · mejor: {b}':'{n} sessões · melhor: {b}','¿?':'?','Versión {v}':'Versão {v}',
 'Entreno':'Treino','Entreno de la mañana':'Treino da manhã','Entreno de la tarde':'Treino da tarde','Entreno de la noche':'Treino da noite'
 };
 const PT_EX={'Press de banca':'Supino reto','Press inclinado':'Supino inclinado','Cruce de poleas':'Crossover','Aperturas':'Crucifixo','Fondos':'Mergulho','Press militar':'Desenvolvimento militar',
@@ -597,7 +599,7 @@ function prepShare(id){const s=S.history.find(x=>x.id===id);ui.share=null;if(!s)
 function shareFile(f){try{if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(()=>{});return}}catch(e){}
   try{const u=URL.createObjectURL(f);const a=document.createElement('a');a.href=u;a.download=f.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}catch(e){toast('No se pudo compartir la imagen')}}
 function tplItemsFromActive(a){return a.exercises.map(ex=>({exId:ex.exId,sets:Math.max(1,ex.sets.filter(x=>x.t!=='w').length),ss:!!ex.ss}))}
-const tplSig=l=>l.map(x=>x.exId+':'+x.sets+':'+(x.ss?1:0)).join('|');
+const tplSig=l=>l.map(x=>x.exId+':'+x.sets).sort().join('|');
 function backupBanner(){const lb=S.settings.lastBackup||0,sn=S.settings.backupSnooze||0,now=Date.now();if(!S.history.length||now-lb<7*DAY||now-sn<3*DAY)return '';const d=lb?Math.floor((now-lb)/DAY):null;return `<div class="banner"><span class="grow">${d==null?'Aún no has guardado una copia de seguridad de tus entrenos.':tr('Hace {n} días que no guardas una copia de seguridad.',{n:d})}</span><button class="btn sm primary" data-act="saveBackup">Guardar</button><button class="btn sm ghost" data-act="snooze">Luego</button></div>`}
 const BODY=[['peso','Peso'],['cintura','Cintura'],['pecho','Pecho'],['brazo','Brazo'],['muslo','Muslo']];
 const bodyUnit=k=>k==='peso'?U():'cm';
@@ -668,13 +670,18 @@ history(){
   return h+'</div>';
 },
 train(){
-  if(S.active)return viewWorkout();
+  if(S.active&&ui.trainView!=='tpl')return viewWorkout();
   const tpls=S.templates.map(t=>{
     const last=[...S.history].reverse().find(h=>h.tplId===t.id);
     return `<button class="card tpl" data-act="tpl" data-id="${t.id}"><span class="tpl-name">${esc(dispName(t.name))}</span><span class="tpl-list">${t.items.map(it=>esc(exName(exById(it.exId)))).join(', ')||'Sin ejercicios'}</span><span class="tpl-last">${last?esc(tr('Última vez: {x}',{x:ago(last.start)})):tr('Sin usar todavía')}</span></button>`;
   }).join('');
   const nd=nextDay();
   const next=nd?`<div class="card next"><div class="grow" style="min-width:0"><div class="label">Hoy toca</div><div class="next-name">${esc(dispName(nd.t.name))}</div><div class="small muted">${nd.last?esc(tr('Último: {n}, {a}',{n:dispName(nd.lastT.name),a:ago(nd.last.start)})):tr('Primer día de tu rotación')} · ${esc(tr('{n} ejercicios',{n:nd.t.items.length}))}</div></div><button class="btn primary" data-act="nextStart" data-id="${nd.t.id}">Empezar</button></div>`:'';
+  if(S.active)return `<div class="wrap">${wkSwitch('tpl')}<h1>Plantillas</h1>
+    <div class="banner"><span class="grow">Tienes un entreno en curso.</span><button class="btn sm primary" data-act="toWk">Volver al entreno</button></div>
+    <div class="sec-head"><h2>Mis plantillas</h2><button class="btn ghost" data-act="newTpl">+ Plantilla</button></div>
+    ${tpls?`<div class="tpl-grid">${tpls}</div>`:'<div class="card muted">Crea una plantilla con tus ejercicios para empezar con un toque.</div>'}
+  </div>`;
   return `<div class="wrap"><h1>Entrenar</h1>
     ${backupBanner()}${next}
     <button class="btn block${nd?'':' primary'}" data-act="startEmpty">Empezar entreno vacío</button>
@@ -744,7 +751,7 @@ profile(){
       <button class="btn primary block" data-act="saveBackup">Guardar copia en un archivo</button>
       <div class="row"><button class="btn soft grow" data-act="export">Copiar como texto</button><button class="btn soft grow" data-act="importOpen">Importar</button></div>
     </div>
-    <p class="muted small" style="margin:0;text-align:center">${tr('Versión {v}',{v:'21.1'})}</p>
+    <p class="muted small" style="margin:0;text-align:center">${tr('Versión {v}',{v:'21.2'})}</p>
     ${S.history.some(x=>x.example)?`<button class="btn block danger-t" data-act="clearExamples">${ui.confirm==='ex'?'Toca otra vez para borrar los ejemplos':'Borrar entrenos de ejemplo'}</button>`:''}
   </div>`;
 }
@@ -757,9 +764,10 @@ function nextSet(a){const ex=a.exercises,n=ex.length;const pend=i=>ex[i]?ex[i].s
     if(g1>g0){for(let k=1;k<=g1-g0+1;k++){const i=g0+((li-g0+k)%(g1-g0+1));const r=hit(i);if(r)return r}li=g1}
     for(let i=li;i<n;i++){const r=hit(i);if(r)return r}}
   for(let i=0;i<n;i++){const r=hit(i);if(r)return r}return null}
+function wkSwitch(v){return `<div class="seg wk-switch" role="tablist"><button class="chip${v==='wk'?' on':''}" data-act="toWk" role="tab" aria-selected="${v==='wk'}">Entreno en curso</button><button class="chip${v==='tpl'?' on':''}" data-act="toTpl" role="tab" aria-selected="${v==='tpl'}">Plantillas</button></div>`}
 function viewWorkout(){
   const a=S.active;const NX=nextSet(a);const isNx=(i,j)=>!!NX&&NX.i===i&&NX.j===j;
-  let h=`<div class="wrap"><div class="wk-head"><div class="wk-meta"><input id="wk-name" class="wk-name" value="${esc(a.name)}" aria-label="Nombre del entreno"><span class="elapsed" id="elapsed">${fmtClock(Date.now()-a.start)}</span></div><button class="icon-btn timer-btn" data-act="timer" aria-label="Temporizador de descanso">${ICON.timer}</button><button class="btn primary" data-act="finish">Terminar</button></div>`;
+  let h=`<div class="wrap">${wkSwitch('wk')}<div class="wk-head"><div class="wk-meta"><input id="wk-name" class="wk-name" value="${esc(a.name)}" aria-label="Nombre del entreno"><span class="elapsed" id="elapsed">${fmtClock(Date.now()-a.start)}</span></div><button class="icon-btn timer-btn" data-act="timer" aria-label="Temporizador de descanso">${ICON.timer}</button><button class="btn primary" data-act="finish">Terminar</button></div>`;
   if(!a.exercises.length)h+='<div class="card muted">Añade tu primer ejercicio para empezar a registrar series.</div>';
   a.exercises.forEach((ex,i)=>{
     const e=exById(ex.exId);const prev=lastSets(ex.exId)||[];let n=0;const c=isCardio(ex.exId);
@@ -1103,7 +1111,7 @@ function releaseWake(){try{wake&&wake.release()}catch(e){}wake=null}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){requestWake();render()}});
 
 /* ---------- Acciones ---------- */
-function startWorkout(name,items,tplId){
+function startWorkout(name,items,tplId){ui.trainView='wk';
   S.active={name,start:Date.now(),tplId:tplId||null,exercises:items.map(it=>({exId:it.exId,ss:!!it.ss,sets:Array.from({length:Math.max(1,it.sets)},()=>({w:'',r:'',t:'n',done:false}))}))};
   S.rest=null;save();ui.tab='train';ui.sheet=null;ui.confirm=null;render();$('#main').scrollTop=0;requestWake();
 }
@@ -1190,11 +1198,13 @@ const A={
     if(!dv||dv>=today)x.t=Date.now();else{const [y,mo,da]=dv.split('-').map(Number);x.t=new Date(y,mo-1,da,12,0,0).getTime()}
     S.body.push(x);save();closeSheet();toast('Medidas guardadas')},
   bodyDel(b){const id=b.dataset.id;if(!confirmTap('body'+id))return;S.body=S.body.filter(x=>x.id!==id);save();render();toast('Registro borrado')},
-  tab(b){ui.tab=b.dataset.tab;ui.confirm=null;render();$('#main').scrollTop=0},
+  tab(b){ui.tab=b.dataset.tab;if(ui.tab==='train')ui.trainView='wk';ui.confirm=null;render();$('#main').scrollTop=0},
+  toWk(){ui.trainView='wk';render();$('#main').scrollTop=0},
+  toTpl(){ui.trainView='tpl';render();$('#main').scrollTop=0},
   close(){closeSheet()},
   startEmpty(){startWorkout(partName(),[],null)},
   tpl(b){openSheet({type:'tpl',id:b.dataset.id})},
-  tplStart(){const t=S.templates.find(x=>x.id===ui.sheet.id);if(t)startWorkout(dispName(t.name),t.items,t.id)},
+  tplStart(){if(S.active){toast('Termina o cancela el entreno en curso primero');return}const t=S.templates.find(x=>x.id===ui.sheet.id);if(t)startWorkout(dispName(t.name),t.items,t.id)},
   tplEdit(){const t=S.templates.find(x=>x.id===ui.sheet.id);ui.draft=JSON.parse(JSON.stringify(t));openSheet({type:'edit'})},
   newTpl(){ui.draft={id:null,name:'',items:[]};openSheet({type:'edit'})},
   draftInc(b){const it=ui.draft.items[+b.dataset.k];it.sets=Math.min(10,it.sets+1);renderSheet()},
