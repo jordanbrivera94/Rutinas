@@ -188,6 +188,11 @@ textarea.note-ta{font-family:var(--f-body);font-size:16px;min-height:72px}
 .ro-item.drag{transition:none;z-index:2;box-shadow:0 10px 28px rgba(0,0,0,.35);outline:2px solid var(--accent)}
 .ro-grip{color:var(--muted);font-size:1.25rem;line-height:1}
 @media (prefers-reduced-motion:reduce){.ro-item{transition:none}}
+.note-btn{color:var(--plate-y);position:relative}
+.note-btn .nb{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--plate-y);color:var(--surface);font-size:.66rem;font-weight:700;display:grid;place-items:center;line-height:1}
+.note-ic{color:var(--plate-y);display:inline-flex;width:20px;height:20px}.note-ic svg{width:20px;height:20px}
+.ex-note{border-left:3px solid var(--plate-y)}
+.note-row{display:flex;gap:8px;align-items:flex-start}.note-row textarea{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface2);border-radius:10px;padding:10px 12px;width:100%}
 .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .tile{background:var(--surface);border-radius:12px;padding:12px;box-shadow:var(--shadow);min-width:0}
 .tile .v{font-family:var(--f-display);font-weight:700;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -310,7 +315,7 @@ const LIB=[
 ['Plancha','Peso corporal','Core'],['Crunch en polea','Polea','Core'],['Elevación de piernas colgado','Peso corporal','Core'],
 ['Spinning','','Cardio'],['Trotadora','','Cardio']
 ];
-const ICON={plate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/></svg>',link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',timer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9.5 2.5h5"/></svg>',dots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>'};
+const ICON={note:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4M8 12h8M8 16h6"/></svg>',plate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/></svg>',link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',timer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9.5 2.5h5"/></svg>',dots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>'};
 
 const uid=()=>Math.random().toString(36).slice(2,10);
 const $=s=>document.querySelector(s);
@@ -445,7 +450,7 @@ const PT={
 '{x} en el tiempo':'{x} ao longo do tempo','Añadidas {n} series de calentamiento':'{n} séries de aquecimento adicionadas','Peso puesto: {w}':'Peso definido: {w}',
 'Plantilla {n} actualizada':'Modelo {n} atualizado','Plantilla «{n}» guardada':'Modelo «{n}» salvo','Superserie: ahora {x}':'Superssérie: agora {x}','{x} guardado: {d}':'{x} salvo: {d}',
 'DURACIÓN':'DURAÇÃO','VOLUMEN':'VOLUME','SERIES':'SÉRIES','CARDIO':'CARDIO','EJERCICIO':'EXERCÍCIO','MEJOR SERIE':'MELHOR SÉRIE','+ {n} ejercicios más':'+ {n} exercícios a mais',
-'RÉCORD NUEVO':'RECORDE NOVO','RÉCORDS NUEVOS':'RECORDES NOVOS','Copia de Rutinas Gym':'Backup do Rutinas Gym','Últimas sesiones':'Últimas sessões','Toca el nombre de un ejercicio para ver su progreso.':'Toque no nome de um exercício para ver o progresso.','Ver todas las gráficas':'Ver todos os gráficos','Aún no hay datos para la gráfica de este ejercicio.':'Ainda não há dados para o gráfico deste exercício.','Progreso de los ejercicios':'Progresso dos exercícios','Desliza y suelta para cambiar el orden':'Arraste e solte para mudar a ordem','Mantén apretado el nombre de un ejercicio y deslízalo para cambiar el orden.':'Segure o nome de um exercício e arraste para mudar a ordem.','Superserie separada al mover el ejercicio':'Superssérie separada ao mover o exercício','El punto grande es este entreno. Toca un ejercicio para ver todas sus gráficas.':'O ponto grande é este treino. Toque num exercício para ver todos os gráficos.','Primera vez':'Primeira vez','Distancia':'Distância','Igual que la anterior':'Igual à anterior','{d} vs la anterior':'{d} vs a anterior','Volumen':'Volume','Reps totales':'Reps totais','Velocidad':'Velocidade','3 meses':'3 meses','1 año':'1 ano','Todo':'Tudo','No hay suficientes sesiones en este periodo.':'Não há sessões suficientes neste período.','{n} sesiones · mejor: {b}':'{n} sessões · melhor: {b}','¿?':'?','Versión {v}':'Versão {v}',
+'RÉCORD NUEVO':'RECORDE NOVO','RÉCORDS NUEVOS':'RECORDES NOVOS','Copia de Rutinas Gym':'Backup do Rutinas Gym','Últimas sesiones':'Últimas sessões','Toca el nombre de un ejercicio para ver su progreso.':'Toque no nome de um exercício para ver o progresso.','Ver todas las gráficas':'Ver todos os gráficos','Aún no hay datos para la gráfica de este ejercicio.':'Ainda não há dados para o gráfico deste exercício.','Progreso de los ejercicios':'Progresso dos exercícios','Notas':'Notas','Nota':'Nota','Borrar nota':'Apagar nota','Aún no tienes notas para este ejercicio.':'Você ainda não tem notas para este exercício.','Nueva nota':'Nova nota','Añadir nota':'Adicionar nota','Las notas se guardan en el ejercicio y aparecen cada vez que lo haces. Puedes editarlas tocando el texto.':'As notas ficam salvas no exercício e aparecem toda vez que você o faz. Você pode editá-las tocando no texto.','Escribe la nota':'Escreva a nota','Nota añadida':'Nota adicionada','Notas del ejercicio':'Notas do exercício','Notas del ejercicio ({n})':'Notas do exercício ({n})','Desliza y suelta para cambiar el orden':'Arraste e solte para mudar a ordem','Mantén apretado el nombre de un ejercicio y deslízalo para cambiar el orden.':'Segure o nome de um exercício e arraste para mudar a ordem.','Superserie separada al mover el ejercicio':'Superssérie separada ao mover o exercício','El punto grande es este entreno. Toca un ejercicio para ver todas sus gráficas.':'O ponto grande é este treino. Toque num exercício para ver todos os gráficos.','Primera vez':'Primeira vez','Distancia':'Distância','Igual que la anterior':'Igual à anterior','{d} vs la anterior':'{d} vs a anterior','Volumen':'Volume','Reps totales':'Reps totais','Velocidad':'Velocidade','3 meses':'3 meses','1 año':'1 ano','Todo':'Tudo','No hay suficientes sesiones en este periodo.':'Não há sessões suficientes neste período.','{n} sesiones · mejor: {b}':'{n} sessões · melhor: {b}','¿?':'?','Versión {v}':'Versão {v}',
 'Entreno':'Treino','Entreno de la mañana':'Treino da manhã','Entreno de la tarde':'Treino da tarde','Entreno de la noche':'Treino da noite'
 };
 const PT_EX={'Press de banca':'Supino reto','Press inclinado':'Supino inclinado','Cruce de poleas':'Crossover','Aperturas':'Crucifixo','Fondos':'Mergulho','Press militar':'Desenvolvimento militar',
@@ -636,6 +641,9 @@ function platesOut(){
   S.settings.cleaned1=true;save();
 })();
 if(!Array.isArray(S.body))S.body=[];
+function migrateNotes(){let ch=false;S.exercises.forEach(e=>{if(typeof e.note==='string'){ch=true;if(e.note.trim()){e.notes=(e.notes||[]);if(!e.notes.includes(e.note))e.notes.unshift(e.note)}delete e.note}});return ch}
+if(migrateNotes())save();
+const exNotes=e=>((e&&e.notes)||[]).filter(x=>x&&x.trim());
 
 /* ---------- Vistas ---------- */
 const VIEWS={
@@ -735,7 +743,7 @@ profile(){
       <button class="btn primary block" data-act="saveBackup">Guardar copia en un archivo</button>
       <div class="row"><button class="btn soft grow" data-act="export">Copiar como texto</button><button class="btn soft grow" data-act="importOpen">Importar</button></div>
     </div>
-    <p class="muted small" style="margin:0;text-align:center">${tr('Versión {v}',{v:20})}</p>
+    <p class="muted small" style="margin:0;text-align:center">${tr('Versión {v}',{v:21})}</p>
     ${S.history.some(x=>x.example)?`<button class="btn block danger-t" data-act="clearExamples">${ui.confirm==='ex'?'Toca otra vez para borrar los ejemplos':'Borrar entrenos de ejemplo'}</button>`:''}
   </div>`;
 }
@@ -772,8 +780,8 @@ function viewWorkout(){
     }).join('');
     const nx=a.exercises[i+1];const linked=!!(ex.ss&&nx);const inSS=linked||(i>0&&a.exercises[i-1].ss);
     const sg=!c&&ex.sets.some(s=>!s.done)?suggestion(ex.exId):null;
-    const extras=`${inSS?`<div class="ss-tag">${esc(tr('Superserie')+(linked?' · '+tr('sigue {x}',{x:exName(exById(nx.exId))}):''))}</div>`:''}${e.note&&e.note.trim()?`<p class="ex-note">${esc(e.note.trim())}</p>`:''}${sg?`<div class="sug"><span class="grow">${sg.up?'Sube a':'Repite'} <b>${fmtN(sg.w)} ${U()} × ${sg.r}</b>${sg.why?' <span class="muted">· '+esc(tr(sg.why))+'</span>':''}</span><button class="btn sm soft" data-act="sugApply" data-i="${i}">Aplicar</button></div>`:''}`;
-    h+=`<section class="card ex${inSS?' in-ss':''}"><div class="ex-top"><button class="ex-name" data-act="exinfo" data-id="${ex.exId}">${esc(exName(e))} <span class="equip">${esc(e.equip)}</span></button><button class="icon-btn" data-act="exmenu" data-i="${i}" aria-label="Opciones del ejercicio">${ICON.dots}</button></div>${extras}
+    const extras=`${inSS?`<div class="ss-tag">${esc(tr('Superserie')+(linked?' · '+tr('sigue {x}',{x:exName(exById(nx.exId))}):''))}</div>`:''}${exNotes(e).map(x=>`<p class="ex-note">${esc(x.trim())}</p>`).join('')}${sg?`<div class="sug"><span class="grow">${sg.up?'Sube a':'Repite'} <b>${fmtN(sg.w)} ${U()} × ${sg.r}</b>${sg.why?' <span class="muted">· '+esc(tr(sg.why))+'</span>':''}</span><button class="btn sm soft" data-act="sugApply" data-i="${i}">Aplicar</button></div>`:''}`;
+    h+=`<section class="card ex${inSS?' in-ss':''}"><div class="ex-top"><button class="ex-name" data-act="exinfo" data-id="${ex.exId}">${esc(exName(e))} <span class="equip">${esc(e.equip)}</span></button><button class="icon-btn note-btn" data-act="notes" data-id="${ex.exId}" aria-label="Notas del ejercicio">${ICON.note}${exNotes(e).length?`<span class="nb">${exNotes(e).length}</span>`:''}</button><button class="icon-btn" data-act="exmenu" data-i="${i}" aria-label="Opciones del ejercicio">${ICON.dots}</button></div>${extras}
       <div class="set-row head${RIR()&&!c?' rir':''}"><span>${c?'#':'Serie'}</span><span>Anterior</span><span>${c?'Min':U()}</span><span>${c?'Km':'Reps'}</span>${RIR()&&!c?'<span>RIR</span>':''}<span>✓</span></div>${rows}
       ${c&&ex.sets.some(s=>kmh({w:num(s.w),r:num(s.r)}))?`<p class="hint" style="margin:2px 0 0;text-align:left">${ex.sets.filter(s=>kmh({w:num(s.w),r:num(s.r)})).map(s=>tr('Velocidad media: {v} km/h',{v:fmtN(Math.round(kmh({w:num(s.w),r:num(s.r)})*10)/10)})).join(' · ')}</p>`:''}
       <button class="btn sm addset" data-act="addset" data-i="${i}">+ ${c?'Añadir otro bloque':'Añadir serie'}</button></section>`;
@@ -915,7 +923,7 @@ exmenu(){
   const ex=S.active&&S.active.exercises[ui.sheet.i];if(!ex)return '';
   const cur=restFor(ex);
   return `<div class="big-title">${esc(exName(exById(ex.exId)))}</div>
-    <div class="field"><label class="label" for="ex-note">Nota fija del ejercicio</label><textarea id="ex-note" class="note-ta" data-id="${ex.exId}" placeholder="Ej.: asiento en posición 4, agarre cerrado">${esc(exById(ex.exId).note||'')}</textarea></div>
+    <button class="btn tool" data-act="notes" data-id="${ex.exId}"><span class="note-ic">${ICON.note}</span>${esc(tr('Notas del ejercicio ({n})',{n:exNotes(exById(ex.exId)).length}))}</button>
     <div class="label">Descanso tras cada serie · se recuerda para este ejercicio</div>
     <div class="seg">${[45,60,90,120,180,240].map(s=>`<button class="chip${cur===s?' on':''}" data-act="exRest" data-s="${s}">${fmtClock(s*1000)}</button>`).join('')}</div>
     <div class="stack">
@@ -936,7 +944,7 @@ exinfo(){
   sess.forEach(h=>{let sb=0;h.exercises.filter(x=>x.exId===e.id).forEach(x=>x.sets.forEach(s=>{if(s.t==='w')return;const v=e1rm(s.w,s.r);sb=Math.max(sb,v);best=Math.max(best,v);maxW=Math.max(maxW,s.w||0);const vol=(s.w||0)*s.r;if(vol>bv){bv=vol;bestVol=s}}));if(sb>0)pts.push({t:h.start,v:sb})});
   const recent=sess.slice(-5).reverse();
   return `<div><div class="big-title">${esc(exName(e))}</div><div class="muted">${e.equip?esc(tr(e.equip))+' · ':''}${esc(tr(e.muscle))}</div></div>
-    ${S.exercises.some(x=>x.id===e.id)?`<div class="field"><label class="label" for="exi-note">Nota fija</label><textarea id="exi-note" class="note-ta" data-id="${e.id}" placeholder="Ej.: asiento en posición 4, agarre cerrado">${esc(e.note||'')}</textarea></div>`:''}
+    ${S.exercises.some(x=>x.id===e.id)?`${exNotes(e).map(x=>`<p class="ex-note">${esc(x.trim())}</p>`).join('')}<button class="btn tool" data-act="notes" data-id="${e.id}"><span class="note-ic">${ICON.note}</span>${esc(tr('Notas del ejercicio ({n})',{n:exNotes(e).length}))}</button>`:''}
     <div class="stats">
       <div class="tile"><div class="v">${best?fmtN(Math.round(best*10)/10):'—'}</div><div class="k">${esc(tr('1RM estimado ({u})',{u:U()}))}</div></div>
       <div class="tile"><div class="v">${maxW?fmtN(maxW):'—'}</div><div class="k">${esc(tr('Peso máximo ({u})',{u:U()}))}</div></div>
@@ -1012,6 +1020,15 @@ records(){
       <span class="rec-grid"><span>Peso máximo<b>${x.bw?fmtN(x.bw.w)+' × '+x.bw.r:'—'}</b></span><span>1RM estimado<b>${x.b1?fmtN(Math.round(x.b1*10)/10):'—'}</b></span><span>Más reps<b>${x.br?x.br.r+' reps'+(x.br.w>0?' · '+fmtN(x.br.w):''):'—'}</b></span></span></button>`).join('')}</div>`:'<p class="muted">Aún no hay marcas. Completa algún entreno y aparecerán aquí.</p>'}
     <p class="muted small" style="margin:0">${esc(tr('Pesos en {u}. No cuentan las series de calentamiento.',{u:U()}))}</p>
     <div class="sheet-foot"><button class="btn primary" data-act="close">Cerrar</button></div>`;
+},
+notes(){
+  const e=S.exercises.find(x=>x.id===ui.sheet.id);if(!e)return '';const ns=e.notes||[];
+  return `<div><div class="label">${esc(tr('Notas'))}</div><div class="big-title">${esc(exName(e))}</div></div>
+    ${ns.length?`<div class="stack">${ns.map((x,k)=>`<div class="note-row"><textarea class="note-ta" data-nt="${k}" data-id="${e.id}" aria-label="${esc(tr('Nota'))} ${k+1}">${esc(x)}</textarea><button class="icon-btn" data-act="noteDel" data-k="${k}" aria-label="${esc(tr('Borrar nota'))}">${ui.confirm==='note'+k?'?':'✕'}</button></div>`).join('')}</div>`:`<p class="muted" style="margin:0">${esc(tr('Aún no tienes notas para este ejercicio.'))}</p>`}
+    <div class="field"><label class="label" for="note-new">${esc(tr('Nueva nota'))}</label><textarea id="note-new" class="note-ta" placeholder="Ej.: asiento en posición 4, agarre cerrado">${esc(ui.noteDraft||'')}</textarea></div>
+    <button class="btn soft" data-act="noteAdd">+ ${esc(tr('Añadir nota'))}</button>
+    <p class="muted small" style="margin:0">${esc(tr('Las notas se guardan en el ejercicio y aparecen cada vez que lo haces. Puedes editarlas tocando el texto.'))}</p>
+    <div class="sheet-foot"><button class="btn primary" data-act="${ui.sheet.back?'notesBack':'notesDone'}">${esc(tr(ui.sheet.back?'Volver':'Listo'))}</button></div>`;
 },
 plates(){
   const lb=U()==='lb';const bars=lb?[45,35,15,0]:[20,15,10,0];
@@ -1099,7 +1116,7 @@ function addExercises(ids){
 function tplFromSession(s){const t={id:uid(),name:s.name,items:s.exercises.map(ex=>({exId:ex.exId,sets:ex.sets.length,ss:!!ex.ss}))};S.templates.push(t);save();return t}
 function doImport(text){
   try{const d=JSON.parse(text);if(!d||!Array.isArray(d.exercises)||!Array.isArray(d.history)||!Array.isArray(d.templates))throw 0;
-    S=Object.assign({v:1,active:null,rest:null},d);S.settings=Object.assign({unit:'kg',rest:90,autoRest:true,keepAwake:true},d.settings||{});S.history.sort((a,b)=>a.start-b.start);if(!Array.isArray(S.body))S.body=[];
+    S=Object.assign({v:1,active:null,rest:null},d);S.settings=Object.assign({unit:'kg',rest:90,autoRest:true,keepAwake:true},d.settings||{});S.history.sort((a,b)=>a.start-b.start);if(!Array.isArray(S.body))S.body=[];migrateNotes();
     save();ui.sheet=null;ui.tab='history';render();toast('Copia importada')}
   catch(e){toast('Ese texto no es una copia válida de Rutinas Gym')}
 }
@@ -1123,6 +1140,12 @@ const A={
   setLang(b){const l=b.dataset.l==='pt'?'pt':'es';if(l===LANG())return;S.settings.lang=l;save();location.reload()},
   chM(b){ui.chM=b.dataset.k;renderSheet()},
   chP(b){ui.chP=+b.dataset.d;renderSheet()},
+  notes(b){const back=ui.sheet&&['exmenu','exinfo'].includes(ui.sheet.type)?ui.sheet:null;ui.noteDraft='';openSheet({type:'notes',id:b.dataset.id,back})},
+  noteAdd(){const e=S.exercises.find(x=>x.id===ui.sheet.id);if(!e)return;const v=(ui.noteDraft||'').trim();if(!v){toast('Escribe la nota');const el=$('#note-new');el&&el.focus();return}
+    e.notes=(e.notes||[]).filter(x=>x&&x.trim());e.notes.push(v);ui.noteDraft='';save();renderSheet();toast('Nota añadida')},
+  noteDel(b){const e=S.exercises.find(x=>x.id===ui.sheet.id);if(!e)return;const k=+b.dataset.k;if(!confirmTap('note'+k))return;e.notes.splice(k,1);save();render()},
+  notesBack(){const e=S.exercises.find(x=>x.id===ui.sheet.id);if(e&&e.notes)e.notes=e.notes.filter(x=>x&&x.trim());save();openSheet(ui.sheet.back)},
+  notesDone(){const e=S.exercises.find(x=>x.id===ui.sheet.id);if(e&&e.notes)e.notes=e.notes.filter(x=>x&&x.trim());save();closeSheet()},
   rirSet(b){S.settings.rir=b.dataset.v==='1';save();render()},
   calPrev(){ui.calOff=(ui.calOff||0)-1;render()},
   calNext(){ui.calOff=Math.min(0,(ui.calOff||0)+1);render()},
@@ -1266,6 +1289,8 @@ document.addEventListener('input',ev=>{
   if(el.id==='tpl-name'&&ui.draft){ui.draft.name=el.value}
   if(el.id==='cx-min'||el.id==='cx-km'){ui[el.id==='cx-min'?'cxMin':'cxKm']=el.value;const sp=$('#cx-speed');if(sp)sp.textContent=cxSpeed();return}
   if(el.id==='cx-date'){ui.cxDate=el.value}
+  if(el.dataset&&el.dataset.nt!=null){const e=S.exercises.find(x=>x.id===el.dataset.id);if(e&&e.notes){e.notes[+el.dataset.nt]=el.value;save()}return}
+  if(el.id==='note-new'){ui.noteDraft=el.value;return}
   if(el.id==='ex-note'||el.id==='exi-note'){const e=S.exercises.find(x=>x.id===el.dataset.id);if(e){e.note=el.value;save()}return}
   if(el.id==='pl-w'){ui.plW=el.value;const o=$('#pl-out');if(o){o.innerHTML=platesOut();trDOM(o)}return}
 });
