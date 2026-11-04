@@ -100,6 +100,8 @@ h3{font-size:1.05rem;font-weight:700;margin:0}
 .set-row.head{font-size:.7rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding-block:0}
 .set-row.head span{text-align:center}
 .set-row.head span:nth-child(2){text-align:left}
+.set-row.upnext{background:var(--accent-soft)}
+.set-row.upnext .setn{box-shadow:inset 0 0 0 2px var(--accent)}
 .set-row.done{background:var(--done-bg)}
 .setn{border:0;background:var(--surface2);border-radius:8px;height:34px;font-family:var(--f-display);font-weight:700;font-size:1.05rem}
 .set-row.done .setn{background:transparent}
@@ -734,27 +736,34 @@ profile(){
       <button class="btn primary block" data-act="saveBackup">Guardar copia en un archivo</button>
       <div class="row"><button class="btn soft grow" data-act="export">Copiar como texto</button><button class="btn soft grow" data-act="importOpen">Importar</button></div>
     </div>
-    <p class="muted small" style="margin:0;text-align:center">${tr('Versión {v}',{v:18})}</p>
+    <p class="muted small" style="margin:0;text-align:center">${tr('Versión {v}',{v:19})}</p>
     ${S.history.some(x=>x.example)?`<button class="btn block danger-t" data-act="clearExamples">${ui.confirm==='ex'?'Toca otra vez para borrar los ejemplos':'Borrar entrenos de ejemplo'}</button>`:''}
   </div>`;
 }
 };
 
+function nextSet(a){const ex=a.exercises,n=ex.length;const pend=i=>ex[i]?ex[i].sets.findIndex(x=>!x.done):-1;
+  const hit=i=>{const j=pend(i);return j>=0?{i,j}:null};
+  let li=a.lastDoneEx!=null?ex.findIndex(x=>x.exId===a.lastDoneEx):-1;
+  if(li>=0){let g0=li,g1=li;while(g0>0&&ex[g0-1].ss)g0--;while(g1<n-1&&ex[g1].ss)g1++;
+    if(g1>g0){for(let k=1;k<=g1-g0+1;k++){const i=g0+((li-g0+k)%(g1-g0+1));const r=hit(i);if(r)return r}li=g1}
+    for(let i=li;i<n;i++){const r=hit(i);if(r)return r}}
+  for(let i=0;i<n;i++){const r=hit(i);if(r)return r}return null}
 function viewWorkout(){
-  const a=S.active;
+  const a=S.active;const NX=nextSet(a);const isNx=(i,j)=>!!NX&&NX.i===i&&NX.j===j;
   let h=`<div class="wrap"><div class="wk-head"><div class="wk-meta"><input id="wk-name" class="wk-name" value="${esc(a.name)}" aria-label="Nombre del entreno"><span class="elapsed" id="elapsed">${fmtClock(Date.now()-a.start)}</span></div><button class="icon-btn timer-btn" data-act="timer" aria-label="Temporizador de descanso">${ICON.timer}</button><button class="btn primary" data-act="finish">Terminar</button></div>`;
   if(!a.exercises.length)h+='<div class="card muted">Añade tu primer ejercicio para empezar a registrar series.</div>';
   a.exercises.forEach((ex,i)=>{
     const e=exById(ex.exId);const prev=lastSets(ex.exId)||[];let n=0;const c=isCardio(ex.exId);
     const rows=ex.sets.map((s,j)=>{
       const lab=s.t==='n'?String(++n):s.t.toUpperCase();const p=prevFor(prev,ex.sets,j);
-      if(c)return `<div class="set-row${s.done?' done':''}">
+      if(c)return `<div class="set-row${s.done?' done':''}${isNx(i,j)?' upnext':''}">
         <span class="setn" style="display:grid;place-items:center">${j+1}</span>
         <span class="prev">${p?cardioTxt(p):'—'}</span>
         <input class="numin" id="r-${i}-${j}" data-f="r" data-i="${i}" data-j="${j}" inputmode="decimal" placeholder="${p?fmtN(p.r):''}" value="${esc(s.r)}" aria-label="Minutos">
         <input class="numin" id="w-${i}-${j}" data-f="w" data-i="${i}" data-j="${j}" inputmode="decimal" placeholder="${p&&p.w>0?fmtN(p.w):''}" value="${esc(s.w)}" aria-label="Kilómetros">
         <button class="chk${s.done?' on':''}" data-act="check" data-i="${i}" data-j="${j}" aria-label="Marcar como hecho">✓</button></div>`;
-      return `<div class="set-row${s.done?' done':''}${RIR()?' rir':''}">
+      return `<div class="set-row${s.done?' done':''}${RIR()?' rir':''}${isNx(i,j)?' upnext':''}">
         <button class="setn t-${s.t}" data-act="settype" data-i="${i}" data-j="${j}" aria-label="Tipo de serie">${lab}</button>
         <span class="prev">${setTxtShort(p)}</span>
         <input class="numin" id="w-${i}-${j}" data-f="w" data-i="${i}" data-j="${j}" inputmode="decimal" placeholder="${p&&p.w>0?fmtN(p.w):''}" value="${esc(s.w)}" aria-label="Peso">
@@ -1194,7 +1203,7 @@ const A={
     if(s.r===''&&p)s.r=String(p.r);
     const c=isCardio(ex.exId);
     if(num(s.r)===null){render();const r=$('#r-'+i+'-'+j);r&&r.focus();toast(c?'Escribe los minutos':'Escribe las repeticiones');return}
-    s.done=true;save();render();if(c)return;
+    s.done=true;S.active.lastDoneEx=ex.exId;save();render();if(c)return;
     const nx=S.active.exercises[i+1];if(ex.ss&&nx){toast(tr('Superserie: ahora {x}',{x:exName(exById(nx.exId))}));return}
     if(S.settings.autoRest!==false)startRest(restFor(ex))},
   addset(b){const ex=S.active.exercises[+b.dataset.i];ex.sets.push({w:'',r:'',t:'n',done:false});save();render()},
