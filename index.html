@@ -473,6 +473,7 @@ function trDOM(root){if(LANG()!=='pt'||!root)return;['placeholder','aria-label',
   while(n=w.nextNode()){const v=n.nodeValue;const k=v.trim();if(k.length<2)continue;const kk=k.replace(/\s+/g,' ');const r=PT[kk];if(r!=null&&r!==kk)n.nodeValue=v.replace(k,r)}
   root.querySelectorAll('[placeholder],[aria-label],[title]').forEach(e=>['placeholder','aria-label','title'].forEach(a=>{const v=e.getAttribute(a);if(v){const r=PT[v.trim()];if(r!=null)e.setAttribute(a,r)}}))}
 document.documentElement.lang=LANG()==='pt'?'pt-BR':'es';
+const TABBAR_ES=document.querySelector('.tabbar').innerHTML;
 function addTpl(flag,name,need){
   if(S.settings[flag])return;
   const items=need.map(([n,e,m,s])=>{let x=S.exercises.find(q=>q.name===n&&q.equip===e);if(!x){x={id:uid(),name:n,equip:e,muscle:m};S.exercises.push(x)}return {exId:x.id,sets:s}});
@@ -743,7 +744,7 @@ profile(){
       <button class="btn primary block" data-act="saveBackup">Guardar copia en un archivo</button>
       <div class="row"><button class="btn soft grow" data-act="export">Copiar como texto</button><button class="btn soft grow" data-act="importOpen">Importar</button></div>
     </div>
-    <p class="muted small" style="margin:0;text-align:center">${tr('Versión {v}',{v:21})}</p>
+    <p class="muted small" style="margin:0;text-align:center">${tr('Versión {v}',{v:'21.1'})}</p>
     ${S.history.some(x=>x.example)?`<button class="btn block danger-t" data-act="clearExamples">${ui.confirm==='ex'?'Toca otra vez para borrar los ejemplos':'Borrar entrenos de ejemplo'}</button>`:''}
   </div>`;
 }
@@ -1137,7 +1138,8 @@ const A={
     const ws=[[.5,10],[.7,5],[.85,3]].map(([f,r])=>{let w=Math.round(top*f/st)*st;if(bar&&w<bar)w=bar;w=Math.round(w*100)/100;return {w,r}}).filter(x=>x.w>0&&x.w<top&&!seen.has(x.w)&&seen.add(x.w)).map(x=>({w:fmtIn(x.w),r:String(x.r),t:'w',done:false}));
     if(!ws.length){toast('El peso es muy bajo para calentar con series más ligeras');return}
     ex.sets=ws.concat(ex.sets);save();ui.sheet=null;ui.confirm=null;render();toast(tr('Añadidas {n} series de calentamiento',{n:ws.length}))},
-  setLang(b){const l=b.dataset.l==='pt'?'pt':'es';if(l===LANG())return;S.settings.lang=l;save();location.reload()},
+  setLang(b){const l=b.dataset.l==='pt'?'pt':'es';if(l===LANG())return;S.settings.lang=l;save();document.documentElement.lang=l==='pt'?'pt-BR':'es';
+    const tb=document.querySelector('.tabbar');tb.innerHTML=TABBAR_ES;tb.setAttribute('aria-label','Secciones');const r=$('#rest');r.innerHTML='';r.hidden=true;ui.share=null;render()},
   chM(b){ui.chM=b.dataset.k;renderSheet()},
   chP(b){ui.chP=+b.dataset.d;renderSheet()},
   notes(b){const back=ui.sheet&&['exmenu','exinfo'].includes(ui.sheet.type)?ui.sheet:null;ui.noteDraft='';openSheet({type:'notes',id:b.dataset.id,back})},
